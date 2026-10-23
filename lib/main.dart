@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'l10n/app_localizations.dart';
+import 'data/quiz_data.dart';
+import 'screens/quiz_screen.dart';
 
 void main() {
   runApp(const ReelMindApp());
@@ -234,13 +236,19 @@ class LearningReelCard extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.quizComingSoon),
+
+                onPressed: () {
+                  final question = quizForReel(index, l10n);
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => QuizScreen(
+                        question: question,
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
+
                   icon: const Icon(Icons.psychology_outlined),
                   label: Text(l10n.testKnowledge),
                 ),

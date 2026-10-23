@@ -181,6 +181,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swipe up to learn more ↑'**
   String get swipeHint;
+
+  /// No description provided for @quizSkyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which color is scattered most strongly by air molecules?'**
+  String get quizSkyQuestion;
+
+  /// No description provided for @quizSkyRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get quizSkyRed;
+
+  /// No description provided for @quizSkyBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get quizSkyBlue;
+
+  /// No description provided for @quizSkyGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get quizSkyGreen;
+
+  /// No description provided for @quizApiQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the main purpose of an API?'**
+  String get quizApiQuestion;
+
+  /// No description provided for @quizApiExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow applications to exchange data'**
+  String get quizApiExchange;
+
+  /// No description provided for @quizApiBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Charge a device battery'**
+  String get quizApiBattery;
+
+  /// No description provided for @quizApiBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase screen brightness'**
+  String get quizApiBrightness;
+
+  /// No description provided for @quizInterestQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What does compound interest include?'**
+  String get quizInterestQuestion;
+
+  /// No description provided for @quizInterestPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the original principal'**
+  String get quizInterestPrincipal;
+
+  /// No description provided for @quizInterestDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Only new deposits'**
+  String get quizInterestDeposits;
+
+  /// No description provided for @quizInterestPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest earned on previous interest'**
+  String get quizInterestPrevious;
+
+  /// No description provided for @quizCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct!'**
+  String get quizCorrect;
+
+  /// No description provided for @quizWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite. Correct answer:'**
+  String get quizWrong;
+
+  /// No description provided for @backToFeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to feed'**
+  String get backToFeed;
 }
 
 class _AppLocalizationsDelegate

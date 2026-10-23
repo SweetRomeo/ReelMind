@@ -23,31 +23,68 @@ void main() {
     expect(find.text('What is an API?'), findsOneWidget);
   });
   
-testWidgets('User can switch between Turkish and English',
-    (tester) async {
-  await tester.pumpWidget(const ReelMindApp());
-  await tester.pumpAndSettle();
+  testWidgets('User can switch between Turkish and English',
+      (tester) async {
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
 
-  // Switch to Turkish.
-  await tester.tap(find.byKey(const Key('language-menu')));
-  await tester.pumpAndSettle();
+    // Switch to Turkish.
+    await tester.tap(find.byKey(const Key('language-menu')));
+    await tester.pumpAndSettle();
 
-  await tester.tap(find.text('Türkçe').last);
-  await tester.pumpAndSettle();
+    await tester.tap(find.text('Türkçe').last);
+    await tester.pumpAndSettle();
 
-  expect(find.text('Gökyüzü neden mavidir?'), findsOneWidget);
-  expect(find.text('Bilgini Test Et'), findsOneWidget);
+    expect(find.text('Gökyüzü neden mavidir?'), findsOneWidget);
+    expect(find.text('Bilgini Test Et'), findsOneWidget);
 
-  // Switch back to English.
-  await tester.tap(find.byKey(const Key('language-menu')));
-  await tester.pumpAndSettle();
+    // Switch back to English.
+    await tester.tap(find.byKey(const Key('language-menu')));
+    await tester.pumpAndSettle();
 
-  await tester.tap(find.text('English').last);
-  await tester.pumpAndSettle();
+    await tester.tap(find.text('English').last);
+    await tester.pumpAndSettle();
 
-  expect(find.text('Why is the sky blue?'), findsOneWidget);
-  expect(find.text('Test Your Knowledge'), findsOneWidget);
-});
+    expect(find.text('Why is the sky blue?'), findsOneWidget);
+    expect(find.text('Test Your Knowledge'), findsOneWidget);
+  });
+
+  
+  testWidgets('Quiz shows correct and incorrect feedback',
+      (tester) async {
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Test Your Knowledge'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Which color is scattered most strongly by air molecules?'),
+      findsOneWidget,
+    );
+
+    // Correct answer.
+    await tester.tap(find.text('Blue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Correct!'), findsOneWidget);
+
+    await tester.tap(find.text('Back to feed'));
+    await tester.pumpAndSettle();
+
+    // Open the quiz again and answer incorrectly.
+    await tester.tap(find.text('Test Your Knowledge'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Red'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Not quite.'),
+      findsOneWidget,
+    );
+  });
+
 
 }
 
