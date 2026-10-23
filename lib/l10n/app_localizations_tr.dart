@@ -53,4 +53,52 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get swipeHint => 'Yeni bilgiler için yukarı kaydır ↑';
+
+  @override
+  String get quizSkyQuestion =>
+      'Hava molekülleri hangi rengi daha güçlü saçar?';
+
+  @override
+  String get quizSkyRed => 'Kırmızı';
+
+  @override
+  String get quizSkyBlue => 'Mavi';
+
+  @override
+  String get quizSkyGreen => 'Yeşil';
+
+  @override
+  String get quizApiQuestion => 'API\'nin temel amacı nedir?';
+
+  @override
+  String get quizApiExchange =>
+      'Uygulamaların veri alışverişi yapmasını sağlamak';
+
+  @override
+  String get quizApiBattery => 'Cihazın bataryasını şarj etmek';
+
+  @override
+  String get quizApiBrightness => 'Ekran parlaklığını artırmak';
+
+  @override
+  String get quizInterestQuestion => 'Bileşik faiz neyi kapsar?';
+
+  @override
+  String get quizInterestPrincipal => 'Yalnızca başlangıç anaparasını';
+
+  @override
+  String get quizInterestDeposits => 'Yalnızca yeni yatırılan parayı';
+
+  @override
+  String get quizInterestPrevious =>
+      'Önceki faiz kazançları üzerinden kazanılan faizi';
+
+  @override
+  String get quizCorrect => 'Doğru!';
+
+  @override
+  String get quizWrong => 'Yanlış. Doğru cevap:';
+
+  @override
+  String get backToFeed => 'Akışa dön';
 }

@@ -53,4 +53,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get swipeHint => 'Swipe up to learn more ↑';
+
+  @override
+  String get quizSkyQuestion =>
+      'Which color is scattered most strongly by air molecules?';
+
+  @override
+  String get quizSkyRed => 'Red';
+
+  @override
+  String get quizSkyBlue => 'Blue';
+
+  @override
+  String get quizSkyGreen => 'Green';
+
+  @override
+  String get quizApiQuestion => 'What is the main purpose of an API?';
+
+  @override
+  String get quizApiExchange => 'Allow applications to exchange data';
+
+  @override
+  String get quizApiBattery => 'Charge a device battery';
+
+  @override
+  String get quizApiBrightness => 'Increase screen brightness';
+
+  @override
+  String get quizInterestQuestion => 'What does compound interest include?';
+
+  @override
+  String get quizInterestPrincipal => 'Only the original principal';
+
+  @override
+  String get quizInterestDeposits => 'Only new deposits';
+
+  @override
+  String get quizInterestPrevious => 'Interest earned on previous interest';
+
+  @override
+  String get quizCorrect => 'Correct!';
+
+  @override
+  String get quizWrong => 'Not quite. Correct answer:';
+
+  @override
+  String get backToFeed => 'Back to feed';
 }

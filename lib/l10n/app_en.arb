@@ -14,5 +14,24 @@
   "interestDescription": "Compound interest lets you earn returns on both your original money and previous returns.",
   "testKnowledge": "Test Your Knowledge",
   "quizComingSoon": "Quiz coming soon!",
-  "swipeHint": "Swipe up to learn more ↑"
+  "swipeHint": "Swipe up to learn more ↑",
+
+  "quizSkyQuestion": "Which color is scattered most strongly by air molecules?",
+  "quizSkyRed": "Red",
+  "quizSkyBlue": "Blue",
+  "quizSkyGreen": "Green",
+
+  "quizApiQuestion": "What is the main purpose of an API?",
+  "quizApiExchange": "Allow applications to exchange data",
+  "quizApiBattery": "Charge a device battery",
+  "quizApiBrightness": "Increase screen brightness",
+
+  "quizInterestQuestion": "What does compound interest include?",
+  "quizInterestPrincipal": "Only the original principal",
+  "quizInterestDeposits": "Only new deposits",
+  "quizInterestPrevious": "Interest earned on previous interest",
+
+  "quizCorrect": "Correct!",
+  "quizWrong": "Not quite. Correct answer:",
+  "backToFeed": "Back to feed"
 }
