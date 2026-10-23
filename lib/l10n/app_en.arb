@@ -1,0 +1,18 @@
+
+{
+  "@@locale": "en",
+  "language": "Language",
+  "systemLanguage": "System default",
+  "science": "SCIENCE",
+  "technology": "TECHNOLOGY",
+  "finance": "FINANCE",
+  "skyTitle": "Why is the sky blue?",
+  "skyDescription": "Sunlight contains many colors. Air molecules scatter blue light more strongly than red light.",
+  "apiTitle": "What is an API?",
+  "apiDescription": "An API allows different software applications to communicate and exchange information.",
+  "interestTitle": "What is compound interest?",
+  "interestDescription": "Compound interest lets you earn returns on both your original money and previous returns.",
+  "testKnowledge": "Test Your Knowledge",
+  "quizComingSoon": "Quiz coming soon!",
+  "swipeHint": "Swipe up to learn more ↑"
+}
