@@ -2,8 +2,49 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'l10n/app_localizations.dart';
+
 void main() {
   runApp(const ReelMindApp());
+}
+
+class ReelMindApp extends StatefulWidget {
+  const ReelMindApp({super.key});
+
+  @override
+  State<ReelMindApp> createState() => _ReelMindAppState();
+}
+
+class _ReelMindAppState extends State<ReelMindApp> {
+  Locale? _selectedLocale;
+
+  void _changeLocale(Locale? locale) {
+    setState(() {
+      _selectedLocale = locale;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ReelMind',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      locale: _selectedLocale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.trackpad,
+        },
+      ),
+      home: VideoFeedScreen(
+        onLocaleChanged: _changeLocale,
+      ),
+    );
+  }
 }
 
 class LearningReel {
@@ -22,62 +63,42 @@ class LearningReel {
   });
 }
 
-const reels = [
-  LearningReel(
-    category: 'SCIENCE',
-    title: 'Why is the sky blue?',
-    description:
-        'Sunlight contains many colors. Air molecules scatter '
-        'blue light more strongly than red light.',
-    icon: Icons.wb_sunny_outlined,
-    color: Color(0xFF1565C0),
-  ),
-  LearningReel(
-    category: 'TECHNOLOGY',
-    title: 'What is an API?',
-    description:
-        'An API allows different software applications '
-        'to communicate and exchange information.',
-    icon: Icons.code,
-    color: Color(0xFF673AB7),
-  ),
-  LearningReel(
-    category: 'FINANCE',
-    title: 'What is compound interest?',
-    description:
-        'Compound interest lets you earn returns '
-        'on both your original money and previous returns.',
-    icon: Icons.trending_up,
-    color: Color(0xFF00796B),
-  ),
-];
-
-class ReelMindApp extends StatelessWidget {
-  const ReelMindApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ReelMind',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      scrollBehavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.trackpad,
-        },
-      ),
-      home: const VideoFeedScreen(),
-    );
-  }
-}
-
 class VideoFeedScreen extends StatelessWidget {
-  const VideoFeedScreen({super.key});
+  final ValueChanged<Locale?> onLocaleChanged;
+
+  const VideoFeedScreen({
+    super.key,
+    required this.onLocaleChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    final reels = [
+      LearningReel(
+        category: l10n.science,
+        title: l10n.skyTitle,
+        description: l10n.skyDescription,
+        icon: Icons.wb_sunny_outlined,
+        color: const Color(0xFF1565C0),
+      ),
+      LearningReel(
+        category: l10n.technology,
+        title: l10n.apiTitle,
+        description: l10n.apiDescription,
+        icon: Icons.code,
+        color: const Color(0xFF673AB7),
+      ),
+      LearningReel(
+        category: l10n.finance,
+        title: l10n.interestTitle,
+        description: l10n.interestDescription,
+        icon: Icons.trending_up,
+        color: const Color(0xFF00796B),
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
@@ -90,6 +111,8 @@ class VideoFeedScreen extends StatelessWidget {
               return LearningReelCard(
                 reel: reels[index],
                 index: index,
+                total: reels.length,
+                onLocaleChanged: onLocaleChanged,
               );
             },
           ),
@@ -102,15 +125,21 @@ class VideoFeedScreen extends StatelessWidget {
 class LearningReelCard extends StatelessWidget {
   final LearningReel reel;
   final int index;
+  final int total;
+  final ValueChanged<Locale?> onLocaleChanged;
 
   const LearningReelCard({
     super.key,
     required this.reel,
     required this.index,
+    required this.total,
+    required this.onLocaleChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -139,7 +168,33 @@ class LearningReelCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Text('${index + 1}/${reels.length}'),
+                  Text('${index + 1}/$total'),
+                  PopupMenuButton<String>(
+                    key: const Key('language-menu'),
+                    tooltip: l10n.language,
+                    icon: const Icon(Icons.language),
+                    onSelected: (language) {
+                      onLocaleChanged(
+                        language == 'system'
+                            ? null
+                            : Locale(language),
+                      );
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'system',
+                        child: Text(l10n.systemLanguage),
+                      ),
+                      const PopupMenuItem(
+                        value: 'tr',
+                        child: Text('Türkçe'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'en',
+                        child: Text('English'),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               Expanded(
@@ -181,21 +236,22 @@ class LearningReelCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Quiz coming soon!'),
-                        duration: Duration(seconds: 2),
+                      SnackBar(
+                        content: Text(l10n.quizComingSoon),
                       ),
                     );
                   },
                   icon: const Icon(Icons.psychology_outlined),
-                  label: const Text('Test Your Knowledge'),
+                  label: Text(l10n.testKnowledge),
                 ),
               ),
               const SizedBox(height: 16),
-              const Center(
+              Center(
                 child: Text(
-                  'Swipe up to learn more ↑',
-                  style: TextStyle(color: Colors.white70),
+                  l10n.swipeHint,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                  ),
                 ),
               ),
             ],

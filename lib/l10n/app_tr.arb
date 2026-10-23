@@ -1,0 +1,18 @@
+
+{
+  "@@locale": "tr",
+  "language": "Dil",
+  "systemLanguage": "Sistem dili",
+  "science": "BİLİM",
+  "technology": "TEKNOLOJİ",
+  "finance": "FİNANS",
+  "skyTitle": "Gökyüzü neden mavidir?",
+  "skyDescription": "Güneş ışığı farklı renklerden oluşur. Havadaki moleküller mavi ışığı kırmızı ışığa göre daha güçlü saçar.",
+  "apiTitle": "API nedir?",
+  "apiDescription": "API, farklı yazılım uygulamalarının birbiriyle iletişim kurmasını ve bilgi alışverişinde bulunmasını sağlar.",
+  "interestTitle": "Bileşik faiz nedir?",
+  "interestDescription": "Bileşik faiz, hem başlangıçtaki paranız üzerinden hem de önceki dönemlerde kazanılan faizler üzerinden faiz elde edilmesini sağlar.",
+  "testKnowledge": "Bilgini Test Et",
+  "quizComingSoon": "Quiz özelliği yakında!",
+  "swipeHint": "Yeni bilgiler için yukarı kaydır ↑"
+}
