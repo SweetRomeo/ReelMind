@@ -1,10 +1,10 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'l10n/app_localizations.dart';
 import 'data/quiz_data.dart';
 import 'screens/quiz_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const ReelMindApp());
@@ -31,7 +31,7 @@ class _ReelMindAppState extends State<ReelMindApp> {
     return MaterialApp(
       title: 'ReelMind',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: AppTheme.dark(),
       locale: _selectedLocale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -42,9 +42,7 @@ class _ReelMindAppState extends State<ReelMindApp> {
           PointerDeviceKind.trackpad,
         },
       ),
-      home: VideoFeedScreen(
-        onLocaleChanged: _changeLocale,
-      ),
+      home: VideoFeedScreen(onLocaleChanged: _changeLocale),
     );
   }
 }
@@ -68,10 +66,7 @@ class LearningReel {
 class VideoFeedScreen extends StatelessWidget {
   final ValueChanged<Locale?> onLocaleChanged;
 
-  const VideoFeedScreen({
-    super.key,
-    required this.onLocaleChanged,
-  });
+  const VideoFeedScreen({super.key, required this.onLocaleChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -142,30 +137,44 @@ class LearningReelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isCompact = screenHeight < 650;
+
+    final horizontalPadding = isCompact ? 16.0 : 24.0;
+    final logoFontSize = isCompact ? 22.0 : 26.0;
+    final heroCardWidth = isCompact ? 150.0 : 190.0;
+    final heroCardHeight = isCompact ? 110.0 : 190.0;
+    final heroIconSize = isCompact ? 70.0 : 90.0;
+
+    final titleFontSize = isCompact ? 28.0 : 30.0;
+    final descriptionFontSize = isCompact ? 14.0 : 17.0;
+    final buttonHeight = isCompact ? 50.0 : 58.0;
+
+    final gapSmall = isCompact ? 8.0 : 12.0;
+    final gapMedium = isCompact ? 12.0 : 16.0;
+    final gapLarge = isCompact ? 20.0 : 28.0;
+
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            reel.color,
-            const Color(0xFF101018),
-            Colors.black,
-          ],
+          colors: [Color(0xFF171F3D), Color(0xFF101528), Color(0xFF090D1A)],
         ),
       ),
+
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(horizontalPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     'ReelMind',
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: logoFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -177,9 +186,7 @@ class LearningReelCard extends StatelessWidget {
                     icon: const Icon(Icons.language),
                     onSelected: (language) {
                       onLocaleChanged(
-                        language == 'system'
-                            ? null
-                            : Locale(language),
+                        language == 'system' ? null : Locale(language),
                       );
                     },
                     itemBuilder: (context) => [
@@ -187,68 +194,114 @@ class LearningReelCard extends StatelessWidget {
                         value: 'system',
                         child: Text(l10n.systemLanguage),
                       ),
-                      const PopupMenuItem(
-                        value: 'tr',
-                        child: Text('Türkçe'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'en',
-                        child: Text('English'),
-                      ),
+                      const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
+                      const PopupMenuItem(value: 'en', child: Text('English')),
                     ],
                   ),
                 ],
               ),
-              Expanded(
-                child: Center(
-                  child: Icon(
-                    reel.icon,
-                    size: 120,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Text(
-                reel.category,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                reel.title,
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+
               const SizedBox(height: 16),
-              Text(
-                reel.description,
-                style: const TextStyle(
-                  fontSize: 17,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 28),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
 
-                onPressed: () {
-                  final question = quizForReel(index, l10n);
+              Row(
+                children: List.generate(total, (step) {
+                  final isCompleted = step <= index;
 
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => QuizScreen(
-                        question: question,
+                  return Expanded(
+                    child: Container(
+                      height: 4,
+                      margin: EdgeInsets.only(right: step == total - 1 ? 0 : 6),
+                      decoration: BoxDecoration(
+                        color: isCompleted ? AppColors.accent : Colors.white24,
+                        borderRadius: BorderRadius.circular(100),
                       ),
                     ),
                   );
-                },
+                }),
+              ),
 
+              const SizedBox(height: 12),
+
+              Expanded(
+                child: Center(
+                  child: Container(
+                    width: heroCardWidth,
+                    height: heroCardHeight,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [reel.color, const Color(0xFF242044)],
+                      ),
+                      border: Border.all(color: Colors.white24, width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: reel.color.withValues(alpha: 0.3),
+                          blurRadius: 55,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        reel.icon,
+                        size: heroIconSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: reel.color.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: reel.color.withValues(alpha: 0.65)),
+                ),
+                child: Text(
+                  reel.category,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: gapMedium),
+              Text(
+                reel.title,
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: gapSmall),
+              Text(
+                reel.description,
+                style: TextStyle(fontSize: descriptionFontSize, height: 1.5),
+              ),
+              SizedBox(height: gapLarge),
+              SizedBox(
+                width: double.infinity,
+                height: buttonHeight,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final question = quizForReel(index, l10n);
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => QuizScreen(question: question),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.psychology_outlined),
                   label: Text(l10n.testKnowledge),
                 ),
@@ -257,8 +310,9 @@ class LearningReelCard extends StatelessWidget {
               Center(
                 child: Text(
                   l10n.swipeHint,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white70,
+                    fontSize: isCompact ? 13 : 15,
                   ),
                 ),
               ),

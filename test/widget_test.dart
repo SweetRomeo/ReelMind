@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reelmind/main.dart';
@@ -12,19 +11,15 @@ void main() {
     expect(find.text('Why is the sky blue?'), findsOneWidget);
 
     // Swipe up to the next reel.
-    await tester.drag(
-      find.byType(PageView),
-      const Offset(0, -600),
-    );
+    await tester.drag(find.byType(PageView), const Offset(0, -600));
 
     await tester.pumpAndSettle();
 
     // Check the second reel.
     expect(find.text('What is an API?'), findsOneWidget);
   });
-  
-  testWidgets('User can switch between Turkish and English',
-      (tester) async {
+
+  testWidgets('User can switch between Turkish and English', (tester) async {
     await tester.pumpWidget(const ReelMindApp());
     await tester.pumpAndSettle();
 
@@ -49,12 +44,18 @@ void main() {
     expect(find.text('Test Your Knowledge'), findsOneWidget);
   });
 
-  
-  testWidgets('Quiz shows correct and incorrect feedback',
-      (tester) async {
+  testWidgets('Quiz shows correct and incorrect feedback', (tester) async {
+    // Use a realistic mobile screen size.
+    await tester.binding.setSurfaceSize(const Size(430, 900));
+
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
     await tester.pumpWidget(const ReelMindApp());
     await tester.pumpAndSettle();
 
+    // Open the quiz.
     await tester.tap(find.text('Test Your Knowledge'));
     await tester.pumpAndSettle();
 
@@ -63,28 +64,49 @@ void main() {
       findsOneWidget,
     );
 
-    // Correct answer.
+    // Select correct answer.
     await tester.tap(find.text('Blue'));
     await tester.pumpAndSettle();
 
     expect(find.text('Correct!'), findsOneWidget);
 
-    await tester.tap(find.text('Back to feed'));
+    // Return to the feed.
+    final backButton = find.text('Back to feed');
+
+    await tester.ensureVisible(backButton);
     await tester.pumpAndSettle();
 
-    // Open the quiz again and answer incorrectly.
+    await tester.tap(backButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Why is the sky blue?'), findsOneWidget);
+
+    // Reopen quiz and select incorrect answer.
     await tester.tap(find.text('Test Your Knowledge'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Red'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining('Not quite.'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Not quite.'), findsOneWidget);
+
+    // Correct answer should still be visible.
+    expect(find.text('Blue'), findsOneWidget);
   });
 
+  testWidgets('Feed does not overflow on small phones', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(320, 568));
 
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Why is the sky blue?'), findsOneWidget);
+
+    // Detect Flutter layout exceptions.
+    expect(tester.takeException(), isNull);
+  });
 }
-

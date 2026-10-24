@@ -1,4 +1,3 @@
-
 import '../models/quiz_question.dart';
 import '../l10n/app_localizations.dart';
 
@@ -7,11 +6,7 @@ QuizQuestion quizForReel(int index, AppLocalizations l10n) {
     case 0:
       return QuizQuestion(
         question: l10n.quizSkyQuestion,
-        options: [
-          l10n.quizSkyRed,
-          l10n.quizSkyBlue,
-          l10n.quizSkyGreen,
-        ],
+        options: [l10n.quizSkyRed, l10n.quizSkyBlue, l10n.quizSkyGreen],
         correctIndex: 1,
       );
 
