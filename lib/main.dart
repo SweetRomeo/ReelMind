@@ -137,197 +137,190 @@ class LearningReelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isCompact = MediaQuery.sizeOf(context).height < 650;
 
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isCompact = screenHeight < 650;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Full-screen video or placeholder.
+        if (index == 0)
+          const ReelVideoPlayer(
+            videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [reel.color, const Color(0xFF090D1A)],
+              ),
+            ),
+            child: Center(
+              child: Icon(reel.icon, size: 110, color: Colors.white54),
+            ),
+          ),
 
-    final horizontalPadding = isCompact ? 16.0 : 24.0;
-    final logoFontSize = isCompact ? 22.0 : 26.0;
-    final heroCardWidth = isCompact ? 150.0 : 190.0;
-    final heroCardHeight = isCompact ? 110.0 : 190.0;
-    final heroIconSize = isCompact ? 70.0 : 90.0;
-
-    final titleFontSize = isCompact ? 28.0 : 30.0;
-    final descriptionFontSize = isCompact ? 14.0 : 17.0;
-    final buttonHeight = isCompact ? 50.0 : 58.0;
-
-    final gapSmall = isCompact ? 8.0 : 12.0;
-    final gapMedium = isCompact ? 12.0 : 16.0;
-    final gapLarge = isCompact ? 20.0 : 28.0;
-
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF171F3D), Color(0xFF101528), Color(0xFF090D1A)],
-        ),
-      ),
-
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(horizontalPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'ReelMind',
-                    style: TextStyle(
-                      fontSize: logoFontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text('${index + 1}/$total'),
-                  PopupMenuButton<String>(
-                    key: const Key('language-menu'),
-                    tooltip: l10n.language,
-                    icon: const Icon(Icons.language),
-                    onSelected: (language) {
-                      onLocaleChanged(
-                        language == 'system' ? null : Locale(language),
-                      );
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'system',
-                        child: Text(l10n.systemLanguage),
-                      ),
-                      const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
-                      const PopupMenuItem(value: 'en', child: Text('English')),
-                    ],
-                  ),
+        // Gradient to keep text readable.
+        const IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0, 0.38, 1.0],
+                colors: [
+                  Color(0xB3000000),
+                  Colors.transparent,
+                  Color(0xE6000000),
                 ],
               ),
+            ),
+          ),
+        ),
 
-              const SizedBox(height: 16),
-
-              Row(
-                children: List.generate(total, (step) {
-                  final isCompleted = step <= index;
-
-                  return Expanded(
-                    child: Container(
-                      height: 4,
-                      margin: EdgeInsets.only(right: step == total - 1 ? 0 : 6),
-                      decoration: BoxDecoration(
-                        color: isCompleted ? AppColors.accent : Colors.white24,
-                        borderRadius: BorderRadius.circular(100),
+        // Overlay content.
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isCompact ? 16 : 24,
+              vertical: 12,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'ReelMind',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: isCompact ? 20 : 26,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 12),
-
-              Expanded(
-                child: Center(
-                  child: Container(
-                    width: heroCardWidth,
-                    height: heroCardHeight,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [reel.color, const Color(0xFF242044)],
-                      ),
-                      border: Border.all(color: Colors.white24, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: reel.color.withValues(alpha: 0.3),
-                          blurRadius: 55,
-                          spreadRadius: 5,
+                    const SizedBox(width: 8),
+                    Text('${index + 1}/$total'),
+                    PopupMenuButton<String>(
+                      key: const Key('language-menu'),
+                      tooltip: l10n.language,
+                      icon: const Icon(Icons.language),
+                      onSelected: (language) {
+                        onLocaleChanged(
+                          language == 'system' ? null : Locale(language),
+                        );
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'system',
+                          child: Text(l10n.systemLanguage),
+                        ),
+                        const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
+                        const PopupMenuItem(
+                          value: 'en',
+                          child: Text('English'),
                         ),
                       ],
                     ),
-                    child: index == 0
-                        ? const ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(40)),
-                            child: ReelVideoPlayer(
-                              videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-                            ),
-                          )
-                        : Center(
-                            child: Icon(
-                              reel.icon,
-                              size: heroIconSize,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
+                  ],
                 ),
-              ),
 
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: reel.color.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: reel.color.withValues(alpha: 0.65)),
-                ),
-                child: Text(
-                  reel.category,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
+                const SizedBox(height: 12),
 
-              SizedBox(height: gapMedium),
-              Text(
-                reel.title,
-                style: TextStyle(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: gapSmall),
-              Text(
-                reel.description,
-                style: TextStyle(fontSize: descriptionFontSize, height: 1.5),
-              ),
-              SizedBox(height: gapLarge),
-              SizedBox(
-                width: double.infinity,
-                height: buttonHeight,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    final question = quizForReel(index, l10n);
-
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => QuizScreen(question: question),
+                Row(
+                  children: List.generate(total, (step) {
+                    return Expanded(
+                      child: Container(
+                        height: 4,
+                        margin: EdgeInsets.only(
+                          right: step == total - 1 ? 0 : 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: step <= index
+                              ? AppColors.accent
+                              : Colors.white38,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
                     );
-                  },
-                  icon: const Icon(Icons.psychology_outlined),
-                  label: Text(l10n.testKnowledge),
+                  }),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  l10n.swipeHint,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: isCompact ? 13 : 15,
+
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Chip(
+                            label: Text(reel.category),
+                            backgroundColor: reel.color,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Text(
+                            reel.title,
+                            style: TextStyle(
+                              fontSize: isCompact ? 26 : 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Text(
+                            reel.description,
+                            style: TextStyle(
+                              fontSize: isCompact ? 14 : 16,
+                              height: 1.5,
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                final question = quizForReel(index, l10n);
+
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        QuizScreen(question: question),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.psychology_outlined),
+                              label: Text(l10n.testKnowledge),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          Center(
+                            child: Text(
+                              l10n.swipeHint,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

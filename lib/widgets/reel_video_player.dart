@@ -106,31 +106,35 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
           ),
         ),
         Positioned(
-          bottom: 4,
-          left: 4,
-          right: 4,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                tooltip: 'Play or pause',
-                onPressed: _togglePlayback,
-                icon: Icon(
-                  _controller.value.isPlaying
-                      ? Icons.pause_circle
-                      : Icons.play_circle,
-                  color: Colors.white,
+          top: 112,
+          right: 16,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              children: [
+                IconButton(
+                  tooltip: 'Play or pause',
+                  onPressed: _togglePlayback,
+                  icon: Icon(
+                    _controller.value.isPlaying
+                        ? Icons.pause_circle
+                        : Icons.play_circle,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              IconButton(
-                tooltip: 'Mute or unmute',
-                onPressed: _toggleMute,
-                icon: Icon(
-                  _muted ? Icons.volume_off : Icons.volume_up,
-                  color: Colors.white,
+                IconButton(
+                  tooltip: 'Mute or unmute',
+                  onPressed: _toggleMute,
+                  icon: Icon(
+                    _muted ? Icons.volume_off : Icons.volume_up,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
