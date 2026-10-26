@@ -5,6 +5,7 @@ import 'l10n/app_localizations.dart';
 import 'data/quiz_data.dart';
 import 'screens/quiz_screen.dart';
 import 'theme/app_theme.dart';
+import 'widgets/reel_video_player.dart';
 
 void main() {
   runApp(const ReelMindApp());
@@ -243,13 +244,20 @@ class LearningReelCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: Icon(
-                        reel.icon,
-                        size: heroIconSize,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: index == 0
+                        ? const ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(40)),
+                            child: ReelVideoPlayer(
+                              videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+                            ),
+                          )
+                        : Center(
+                            child: Icon(
+                              reel.icon,
+                              size: heroIconSize,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ),
