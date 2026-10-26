@@ -64,10 +64,17 @@ class LearningReel {
   });
 }
 
-class VideoFeedScreen extends StatelessWidget {
+class VideoFeedScreen extends StatefulWidget {
   final ValueChanged<Locale?> onLocaleChanged;
 
   const VideoFeedScreen({super.key, required this.onLocaleChanged});
+
+  @override
+  State<VideoFeedScreen> createState() => _VideoFeedScreenState();
+}
+
+class _VideoFeedScreenState extends State<VideoFeedScreen> {
+  int _activeIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -105,12 +112,18 @@ class VideoFeedScreen extends StatelessWidget {
           child: PageView.builder(
             scrollDirection: Axis.vertical,
             itemCount: reels.length,
+            onPageChanged: (index) {
+              setState(() {
+                _activeIndex = index;
+              });
+            },
             itemBuilder: (context, index) {
               return LearningReelCard(
                 reel: reels[index],
                 index: index,
                 total: reels.length,
-                onLocaleChanged: onLocaleChanged,
+                isActive: index == _activeIndex,
+                onLocaleChanged: widget.onLocaleChanged,
               );
             },
           ),
@@ -124,6 +137,7 @@ class LearningReelCard extends StatelessWidget {
   final LearningReel reel;
   final int index;
   final int total;
+  final bool isActive;
   final ValueChanged<Locale?> onLocaleChanged;
 
   const LearningReelCard({
@@ -131,6 +145,7 @@ class LearningReelCard extends StatelessWidget {
     required this.reel,
     required this.index,
     required this.total,
+    required this.isActive,
     required this.onLocaleChanged,
   });
 
@@ -144,8 +159,9 @@ class LearningReelCard extends StatelessWidget {
       children: [
         // Full-screen video or placeholder.
         if (index == 0)
-          const ReelVideoPlayer(
+          ReelVideoPlayer(
             videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+            isActive: isActive,
           )
         else
           Container(

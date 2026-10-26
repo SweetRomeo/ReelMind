@@ -3,8 +3,13 @@ import 'package:video_player/video_player.dart';
 
 class ReelVideoPlayer extends StatefulWidget {
   final String videoUrl;
+  final bool isActive;
 
-  const ReelVideoPlayer({super.key, required this.videoUrl});
+  const ReelVideoPlayer({
+    super.key,
+    required this.videoUrl,
+    required this.isActive,
+  });
 
   @override
   State<ReelVideoPlayer> createState() => _ReelVideoPlayerState();
@@ -35,13 +40,44 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       await _controller.setLooping(true);
       await _controller.setVolume(0);
 
-      if (mounted) {
-        setState(() => _ready = true);
-      }
-    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _ready = true;
+      });
+
+      await _syncPlayback();
+    } catch (e) {
+      debugPrint('Video initialization error: $e');
+
       if (mounted) {
         setState(() => _error = 'Video yüklenemedi');
       }
+    }
+  }
+
+  Future<void> _syncPlayback() async {
+    if (!_ready || !mounted) return;
+
+    try {
+      if (widget.isActive) {
+        await _controller.setVolume(_muted ? 0 : 1);
+        await _controller.play();
+      } else {
+        await _controller.pause();
+      }
+
+      debugPrint(
+        'VIDEO: active=${widget.isActive}, '
+        'playing=${_controller.value.isPlaying}',
+      );
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e, stackTrace) {
+      debugPrint('VIDEO AUTOPLAY ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
     }
   }
 
