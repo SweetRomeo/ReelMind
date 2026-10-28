@@ -75,6 +75,34 @@ class VideoFeedScreen extends StatefulWidget {
 
 class _VideoFeedScreenState extends State<VideoFeedScreen> {
   int _activeIndex = 0;
+  bool _isQuizOpen = false;
+
+  Future<void> _openQuiz(int index) async {
+    final l10n = AppLocalizations.of(context)!;
+    final question = quizForReel(index, l10n);
+
+    setState(() {
+      _isQuizOpen = true;
+    });
+
+    // Allow the video widget to receive isActive = false
+    // before opening the quiz screen.
+    await WidgetsBinding.instance.endOfFrame;
+
+    if (!mounted) return;
+
+    try {
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(builder: (context) => QuizScreen(question: question)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isQuizOpen = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +150,8 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 reel: reels[index],
                 index: index,
                 total: reels.length,
-                isActive: index == _activeIndex,
+                isActive: index == _activeIndex && !_isQuizOpen,
+                onQuizPressed: () => _openQuiz(index),
                 onLocaleChanged: widget.onLocaleChanged,
               );
             },
@@ -139,6 +168,7 @@ class LearningReelCard extends StatelessWidget {
   final int total;
   final bool isActive;
   final ValueChanged<Locale?> onLocaleChanged;
+  final VoidCallback onQuizPressed;
 
   const LearningReelCard({
     super.key,
@@ -147,6 +177,7 @@ class LearningReelCard extends StatelessWidget {
     required this.total,
     required this.isActive,
     required this.onLocaleChanged,
+    required this.onQuizPressed,
   });
 
   @override
@@ -304,16 +335,7 @@ class LearningReelCard extends StatelessWidget {
                             width: double.infinity,
                             height: 54,
                             child: ElevatedButton.icon(
-                              onPressed: () {
-                                final question = quizForReel(index, l10n);
-
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        QuizScreen(question: question),
-                                  ),
-                                );
-                              },
+                              onPressed: onQuizPressed,
                               icon: const Icon(Icons.psychology_outlined),
                               label: Text(l10n.testKnowledge),
                             ),

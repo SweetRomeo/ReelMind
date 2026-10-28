@@ -31,6 +31,15 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     _initializeVideo();
   }
 
+  @override
+  void didUpdateWidget(covariant ReelVideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isActive != widget.isActive) {
+      _syncPlayback();
+    }
+  }
+
   Future<void> _initializeVideo() async {
     try {
       await _controller.initialize();
