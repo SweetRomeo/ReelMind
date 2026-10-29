@@ -54,6 +54,7 @@ class LearningReel {
   final String description;
   final IconData icon;
   final Color color;
+  final String? videoUrl;
 
   const LearningReel({
     required this.category,
@@ -61,6 +62,7 @@ class LearningReel {
     required this.description,
     required this.icon,
     required this.color,
+    this.videoUrl,
   });
 }
 
@@ -115,6 +117,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
         description: l10n.skyDescription,
         icon: Icons.wb_sunny_outlined,
         color: const Color(0xFF1565C0),
+        videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
       ),
       LearningReel(
         category: l10n.technology,
@@ -122,6 +125,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
         description: l10n.apiDescription,
         icon: Icons.code,
         color: const Color(0xFF673AB7),
+        videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
       ),
       LearningReel(
         category: l10n.finance,
@@ -189,9 +193,10 @@ class LearningReelCard extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         // Full-screen video or placeholder.
-        if (index == 0)
+        if (reel.videoUrl != null)
           ReelVideoPlayer(
-            videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+            key: ValueKey(reel.videoUrl),
+            videoUrl: reel.videoUrl!,
             isActive: isActive,
           )
         else

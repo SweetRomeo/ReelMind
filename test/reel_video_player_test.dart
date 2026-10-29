@@ -8,6 +8,7 @@ import 'package:reelmind/main.dart';
 
 class FakeVideoPlatform extends VideoPlayerPlatform {
   final calls = <String>[];
+  final playingIds = <int>{};
   final _streams = <int, StreamController<VideoEvent>>{};
   int _nextId = 1;
 
@@ -39,11 +40,13 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   @override
   Future<void> play(int playerId) async {
     calls.add('play');
+    playingIds.add(playerId);
   }
 
   @override
   Future<void> pause(int playerId) async {
     calls.add('pause');
+    playingIds.remove(playerId);
   }
 
   @override
@@ -68,6 +71,7 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   @override
   Future<void> dispose(int playerId) async {
     calls.add('dispose');
+    playingIds.remove(playerId);
     await _streams.remove(playerId)?.close();
   }
 }
@@ -176,5 +180,47 @@ void main() {
       fake.calls.where((call) => call == 'play').length,
       greaterThan(playCount),
     );
+  });
+
+  testWidgets('Only the active reel video plays while swiping', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 900));
+
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+
+    // First reel: bee video.
+    var activePlayers = tester
+        .widgetList<ReelVideoPlayer>(find.byType(ReelVideoPlayer))
+        .where((player) => player.isActive)
+        .toList();
+
+    expect(activePlayers, hasLength(1));
+    expect(activePlayers.single.videoUrl, contains('bee.mp4'));
+    expect(fake.playingIds, hasLength(1));
+
+    // Swipe to second reel: butterfly video.
+    await tester.drag(find.byType(PageView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+
+    activePlayers = tester
+        .widgetList<ReelVideoPlayer>(find.byType(ReelVideoPlayer))
+        .where((player) => player.isActive)
+        .toList();
+
+    expect(activePlayers, hasLength(1));
+    expect(activePlayers.single.videoUrl, contains('butterfly.mp4'));
+
+    // The previous video must have stopped.
+    expect(fake.playingIds, hasLength(1));
+
+    // Third reel has no video.
+    await tester.drag(find.byType(PageView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+
+    expect(fake.playingIds, isEmpty);
   });
 }
