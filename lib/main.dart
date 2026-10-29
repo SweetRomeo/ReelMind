@@ -6,6 +6,8 @@ import 'data/quiz_data.dart';
 import 'screens/quiz_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/reel_video_player.dart';
+import 'models/learning_reel.dart';
+import 'data/reel_data.dart';
 
 void main() {
   runApp(const ReelMindApp());
@@ -46,24 +48,6 @@ class _ReelMindAppState extends State<ReelMindApp> {
       home: VideoFeedScreen(onLocaleChanged: _changeLocale),
     );
   }
-}
-
-class LearningReel {
-  final String category;
-  final String title;
-  final String description;
-  final IconData icon;
-  final Color color;
-  final String? videoUrl;
-
-  const LearningReel({
-    required this.category,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-    this.videoUrl,
-  });
 }
 
 class VideoFeedScreen extends StatefulWidget {
@@ -109,32 +93,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
-    final reels = [
-      LearningReel(
-        category: l10n.science,
-        title: l10n.skyTitle,
-        description: l10n.skyDescription,
-        icon: Icons.wb_sunny_outlined,
-        color: const Color(0xFF1565C0),
-        videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      ),
-      LearningReel(
-        category: l10n.technology,
-        title: l10n.apiTitle,
-        description: l10n.apiDescription,
-        icon: Icons.code,
-        color: const Color(0xFF673AB7),
-        videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      ),
-      LearningReel(
-        category: l10n.finance,
-        title: l10n.interestTitle,
-        description: l10n.interestDescription,
-        icon: Icons.trending_up,
-        color: const Color(0xFF00796B),
-      ),
-    ];
+    final reels = buildReels(l10n);
 
     return Scaffold(
       backgroundColor: Colors.black,
