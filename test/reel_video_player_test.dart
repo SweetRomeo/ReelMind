@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reelmind/widgets/reel_video_player.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:reelmind/main.dart';
+import 'package:reelmind/models/video_source.dart';
 
 class FakeVideoPlatform extends VideoPlayerPlatform {
   final calls = <String>[];
@@ -95,7 +96,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ReelVideoPlayer(
-            videoUrl: 'https://example.com/test.mp4',
+            source: const VideoSource.network('https://example.com/test.mp4'),
             isActive: isActive,
           ),
         ),
@@ -199,7 +200,7 @@ void main() {
         .toList();
 
     expect(activePlayers, hasLength(1));
-    expect(activePlayers.single.videoUrl, contains('bee.mp4'));
+    expect(activePlayers.single.source.location, endsWith('cpp_interview_001.mp4'));
     expect(fake.playingIds, hasLength(1));
 
     // Swipe to second reel: butterfly video.
@@ -212,7 +213,7 @@ void main() {
         .toList();
 
     expect(activePlayers, hasLength(1));
-    expect(activePlayers.single.videoUrl, contains('butterfly.mp4'));
+    expect(activePlayers.single.source.location, endsWith('butterfly.mp4'));
 
     // The previous video must have stopped.
     expect(fake.playingIds, hasLength(1));

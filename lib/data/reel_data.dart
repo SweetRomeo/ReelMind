@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/learning_reel.dart';
+import '../models/video_source.dart';
 
 List<LearningReel> buildReels(AppLocalizations l10n) {
   return [
@@ -11,8 +12,9 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       description: l10n.skyDescription,
       icon: Icons.wb_sunny_outlined,
       color: const Color(0xFF1565C0),
-      videoUrl:
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+      videoSource: const VideoSource.asset(
+        'assets/videos/cpp_interview_001.mp4',
+      ),
     ),
     LearningReel(
       category: l10n.technology,
@@ -20,7 +22,9 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       description: l10n.apiDescription,
       icon: Icons.code,
       color: const Color(0xFF673AB7),
-      videoUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+      videoSource: const VideoSource.network(
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+      ),
     ),
     LearningReel(
       category: l10n.finance,

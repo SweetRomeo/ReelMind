@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'video_source.dart';
+
 class LearningReel {
   final String category;
   final String title;
   final String description;
   final IconData icon;
   final Color color;
-  final String? videoUrl;
+  final VideoSource? videoSource;
 
   const LearningReel({
     required this.category,
@@ -14,6 +16,6 @@ class LearningReel {
     required this.description,
     required this.icon,
     required this.color,
-    this.videoUrl,
+    this.videoSource,
   });
 }

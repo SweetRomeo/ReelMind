@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import '../models/video_source.dart';
 
 class ReelVideoPlayer extends StatefulWidget {
-  final String videoUrl;
+  final VideoSource source;
   final bool isActive;
 
   const ReelVideoPlayer({
     super.key,
-    required this.videoUrl,
+    required this.source,
     required this.isActive,
   });
 
@@ -26,7 +27,12 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
   void initState() {
     super.initState();
 
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    final source = widget.source;
+    _controller = switch (source.type) {
+      VideoSourceType.asset => VideoPlayerController.asset(source.location),
+      VideoSourceType.network =>
+        VideoPlayerController.networkUrl(Uri.parse(source.location)),
+    };
 
     _initializeVideo();
   }
@@ -142,7 +148,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       fit: StackFit.expand,
       children: [
         FittedBox(
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           clipBehavior: Clip.hardEdge,
           child: SizedBox(
             width: _controller.value.size.width,
