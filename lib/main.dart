@@ -152,12 +152,12 @@ class LearningReelCard extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         // Full-screen video or placeholder.
-        if (reel.videoUrl != null)
-          ReelVideoPlayer(
-            key: ValueKey(reel.videoUrl),
-            videoUrl: reel.videoUrl!,
-            isActive: isActive,
-          )
+        if (reel.videoSource != null)
+        ReelVideoPlayer(
+          key: ValueKey(reel.videoSource),
+          source: reel.videoSource!,
+          isActive: isActive,
+        )
         else
           Container(
             decoration: BoxDecoration(

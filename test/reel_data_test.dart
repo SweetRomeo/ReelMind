@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reelmind/data/reel_data.dart';
 import 'package:reelmind/l10n/app_localizations.dart';
+import 'package:reelmind/models/video_source.dart';
 
 void main() {
   test('Builds three reels with correct video sources', () async {
@@ -11,9 +12,16 @@ void main() {
 
     expect(reels, hasLength(3));
 
-    expect(reels[0].videoUrl, contains('bee.mp4'));
-    expect(reels[1].videoUrl, contains('butterfly.mp4'));
-    expect(reels[2].videoUrl, isNull);
+    expect(reels[0].videoSource?.type, VideoSourceType.asset);
+    expect(
+      reels[0].videoSource?.location,
+      'assets/videos/cpp_interview_001.mp4',
+    );
+
+    expect(reels[1].videoSource?.type, VideoSourceType.network);
+    expect(reels[1].videoSource?.location, endsWith('butterfly.mp4'));
+
+    expect(reels[2].videoSource, isNull);
   });
 
   test('Reel content follows the selected language', () async {
@@ -32,6 +40,6 @@ void main() {
     expect(turkishReels[0].title, isNot(englishReels[0].title));
 
     // Changing language must not change video sources.
-    expect(turkishReels[0].videoUrl, englishReels[0].videoUrl);
+    expect(turkishReels[0].videoSource, englishReels[0].videoSource);
   });
 }
