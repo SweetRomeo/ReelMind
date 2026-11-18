@@ -237,7 +237,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: ReelVideoPlayer(
-            source: VideoSource.asset('assets/videos/cpp_interview_001.mp4'),
+            source: VideoSource.asset('assets/videos/api_intro_en_001.mp4',),
             isActive: true,
           ),
         ),
