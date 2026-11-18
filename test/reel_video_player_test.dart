@@ -145,7 +145,7 @@ void main() {
     await tester.pump();
   });
 
-    testWidgets('Quiz pauses video and returning resumes playback', (
+  testWidgets('Quiz pauses video and returning resumes playback', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(430, 900));
@@ -185,9 +185,7 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Only the active reel video plays while swiping', (
-    tester,
-  ) async {
+  testWidgets('Only the active reel video plays while swiping', (tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 900));
 
     addTearDown(() async {
@@ -237,7 +235,7 @@ void main() {
       const MaterialApp(
         home: Scaffold(
           body: ReelVideoPlayer(
-            source: VideoSource.asset('assets/videos/api_intro_en_001.mp4',),
+            source: VideoSource.asset('assets/videos/api_intro_en_001.mp4'),
             isActive: true,
           ),
         ),
