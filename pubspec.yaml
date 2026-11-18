@@ -64,7 +64,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/videos/cpp_interview_001.mp4
+    - assets/videos/api_intro_tr_001.mp4
+    - assets/videos/api_intro_en_001.mp4
 
   # To add assets to your application, add an assets section, like this:
   # assets:

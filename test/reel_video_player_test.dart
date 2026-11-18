@@ -145,51 +145,9 @@ void main() {
     await tester.pump();
   });
 
-  testWidgets('Quiz pauses video and returning resumes playback', (
+    testWidgets('Quiz pauses video and returning resumes playback', (
     tester,
   ) async {
-    await tester.pumpWidget(const ReelMindApp());
-    await tester.pumpAndSettle();
-
-    expect(fake.calls, contains('play'));
-
-    final pauseCount = fake.calls.where((call) => call == 'pause').length;
-
-    // Open quiz.
-    await tester.tap(find.text('Test Your Knowledge'));
-    await tester.pumpAndSettle();
-
-    expect(
-      fake.calls.where((call) => call == 'pause').length,
-      greaterThan(pauseCount),
-    );
-
-    final playCount = fake.calls.where((call) => call == 'play').length;
-
-    // Answer the question and return to the feed.
-    await tester.tap(find.text('Blue'));
-    await tester.pumpAndSettle();
-
-    final backButton = find.text('Back to feed');
-
-    await tester.scrollUntilVisible(
-      backButton,
-      200.0,
-      scrollable: find.byType(Scrollable).last,
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(backButton);
-    await tester.pumpAndSettle();
-
-    expect(
-      fake.calls.where((call) => call == 'play').length,
-      greaterThan(playCount),
-    );
-  });
-
-  testWidgets('Only the active reel video plays while swiping', (tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 900));
 
     addTearDown(() async {
@@ -199,8 +157,54 @@ void main() {
     await tester.pumpWidget(const ReelMindApp());
     await tester.pumpAndSettle();
 
-    // First reel: bee video.
-    var activePlayers = tester
+    // API videosunun olduğu ikinci karta geç.
+    await tester.drag(find.byType(PageView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+
+    expect(find.text('What is an API?'), findsOneWidget);
+    expect(fake.playingIds, hasLength(1));
+
+    await tester.tap(find.text('Test Your Knowledge'));
+    await tester.pumpAndSettle();
+
+    expect(fake.playingIds, isEmpty);
+
+    await tester.tap(find.text('Allow applications to exchange data'));
+    await tester.pumpAndSettle();
+
+    final backButton = find.text('Back to feed');
+    await tester.ensureVisible(backButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(backButton);
+    await tester.pumpAndSettle();
+
+    expect(fake.playingIds, hasLength(1));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Only the active reel video plays while swiping', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(430, 900));
+
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+
+    // İlk kartta video yok.
+    expect(fake.playingIds, isEmpty);
+
+    // İkinci karttaki API videosu oynar.
+    await tester.drag(find.byType(PageView), const Offset(0, -700));
+    await tester.pumpAndSettle();
+
+    final activePlayers = tester
         .widgetList<ReelVideoPlayer>(find.byType(ReelVideoPlayer))
         .where((player) => player.isActive)
         .toList();
@@ -208,30 +212,24 @@ void main() {
     expect(activePlayers, hasLength(1));
     expect(
       activePlayers.single.source.location,
-      endsWith('cpp_interview_001.mp4'),
+      'assets/videos/api_intro_en_001.mp4',
     );
     expect(fake.playingIds, hasLength(1));
 
-    // Swipe to second reel: butterfly video.
-    await tester.drag(find.byType(PageView), const Offset(0, -700));
-    await tester.pumpAndSettle();
-
-    activePlayers = tester
-        .widgetList<ReelVideoPlayer>(find.byType(ReelVideoPlayer))
-        .where((player) => player.isActive)
-        .toList();
-
-    expect(activePlayers, hasLength(1));
-    expect(activePlayers.single.source.location, endsWith('butterfly.mp4'));
-
-    // The previous video must have stopped.
-    expect(fake.playingIds, hasLength(1));
-
-    // Third reel has no video.
+    // Üçüncü karta geçince oynatma durur.
     await tester.drag(find.byType(PageView), const Offset(0, -700));
     await tester.pumpAndSettle();
 
     expect(fake.playingIds, isEmpty);
+
+    // API kartına dönünce yeniden oynar.
+    await tester.drag(find.byType(PageView), const Offset(0, 700));
+    await tester.pumpAndSettle();
+
+    expect(fake.playingIds, hasLength(1));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets('Local asset video plays and is disposed', (tester) async {
