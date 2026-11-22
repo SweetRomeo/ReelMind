@@ -7,6 +7,7 @@ import '../models/video_source.dart';
 List<LearningReel> buildReels(AppLocalizations l10n) {
   return [
     LearningReel(
+      id: LessonId.skyColor,
       category: l10n.science,
       title: l10n.skyTitle,
       description: l10n.skyDescription,
@@ -14,6 +15,7 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       color: const Color(0xFF1565C0),
     ),
     LearningReel(
+      id: LessonId.apiIntro,
       category: l10n.technology,
       title: l10n.apiTitle,
       description: l10n.apiDescription,
@@ -26,6 +28,7 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       ),
     ),
     LearningReel(
+      id: LessonId.compoundInterest,
       category: l10n.finance,
       title: l10n.interestTitle,
       description: l10n.interestDescription,

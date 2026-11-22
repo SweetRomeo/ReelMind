@@ -6,25 +6,46 @@ import '../theme/app_theme.dart';
 
 class QuizScreen extends StatefulWidget {
   final QuizQuestion question;
+  final Future<void> Function(bool isCorrect) onAnswer;
 
-  const QuizScreen({super.key, required this.question});
+  const QuizScreen({super.key, required this.question, required this.onAnswer});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  int? selectedIndex;
+  int? _selectedIndex;
+  bool _isSaving = false;
+  bool _saveFailed = false;
+
+  Future<void> _submitAnswer(int index) async {
+    if (_isSaving || _selectedIndex != null) return;
+
+    setState(() {
+      _isSaving = true;
+      _saveFailed = false;
+    });
+
+    try {
+      await widget.onAnswer(widget.question.isCorrect(index));
+      if (mounted) setState(() => _selectedIndex = index);
+    } catch (_) {
+      if (mounted) setState(() => _saveFailed = true);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final question = widget.question;
-    final answered = selectedIndex != null;
+    final answered = _selectedIndex != null;
 
-    final isCorrect = answered && question.isCorrect(selectedIndex!);
+    final isCorrect = answered && question.isCorrect(_selectedIndex!);
 
-    return Scaffold(
+    final screen = Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(l10n.testKnowledge)),
       body: SafeArea(
@@ -51,7 +72,11 @@ class _QuizScreenState extends State<QuizScreen> {
                 const SizedBox(height: 32),
 
                 for (int i = 0; i < question.options.length; i++)
-                  _buildOption(i, answered),
+                  _buildOption(i, answered, enabled: !answered && !_isSaving),
+
+                if (_isSaving) const LinearProgressIndicator(),
+                if (_saveFailed)
+                  Text(l10n.progressSaveFailed, textAlign: TextAlign.center),
 
                 if (answered) ...[
                   const SizedBox(height: 20),
@@ -93,9 +118,9 @@ class _QuizScreenState extends State<QuizScreen> {
                 const SizedBox(height: 32),
 
                 FilledButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: _isSaving
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.arrow_back),
                   label: Text(l10n.backToFeed),
                 ),
@@ -105,11 +130,12 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       ),
     );
+    return PopScope(canPop: !_isSaving, child: screen);
   }
 
-  Widget _buildOption(int index, bool answered) {
+  Widget _buildOption(int index, bool answered, {required bool enabled}) {
     final question = widget.question;
-    final isSelected = selectedIndex == index;
+    final isSelected = _selectedIndex == index;
 
     final showCorrect = answered && index == question.correctIndex;
 
@@ -132,7 +158,7 @@ class _QuizScreenState extends State<QuizScreen> {
       child: Semantics(
         button: true,
         selected: isSelected,
-        enabled: !answered,
+        enabled: enabled,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
@@ -145,13 +171,7 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
-            onTap: answered
-                ? null
-                : () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
+            onTap: enabled ? () => _submitAnswer(index) : null,
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: Row(

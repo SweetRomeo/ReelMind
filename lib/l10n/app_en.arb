@@ -15,6 +15,21 @@
   "testKnowledge": "Test Your Knowledge",
   "quizComingSoon": "Quiz coming soon!",
   "swipeHint": "Swipe up to learn more ↑",
+  "progressSummary": "Answered {answered}/{total} · Correct {correct}/{total}",
+  "@progressSummary": {
+    "placeholders": {
+      "answered": { "type": "int" },
+      "correct": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizUnanswered": "Unanswered",
+  "quizAnsweredCorrectly": "Answered correctly",
+  "quizAnsweredIncorrectly": "Answered incorrectly",
+  "retryQuiz": "Retry Quiz",
+  "progressLoadFailed": "Couldn't load your progress.",
+  "progressSaveFailed": "Couldn't save your answer. Tap an option to try again.",
+  "tryAgain": "Try again",
 
   "quizSkyQuestion": "Which color is scattered most strongly by air molecules?",
   "quizSkyRed": "Red",

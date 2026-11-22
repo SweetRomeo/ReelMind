@@ -55,6 +55,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get swipeHint => 'Yeni bilgiler için yukarı kaydır ↑';
 
   @override
+  String progressSummary(int answered, int correct, int total) {
+    return 'Yanıtlanan $answered/$total · Doğru $correct/$total';
+  }
+
+  @override
+  String get quizUnanswered => 'Yanıtlanmadı';
+
+  @override
+  String get quizAnsweredCorrectly => 'Doğru yanıtlandı';
+
+  @override
+  String get quizAnsweredIncorrectly => 'Yanlış yanıtlandı';
+
+  @override
+  String get retryQuiz => 'Testi Tekrar Çöz';
+
+  @override
+  String get progressLoadFailed => 'İlerlemen yüklenemedi.';
+
+  @override
+  String get progressSaveFailed =>
+      'Yanıtın kaydedilemedi. Tekrar denemek için bir seçeneğe dokun.';
+
+  @override
+  String get tryAgain => 'Tekrar dene';
+
+  @override
   String get quizSkyQuestion =>
       'Hava molekülleri hangi rengi daha güçlü saçar?';
 

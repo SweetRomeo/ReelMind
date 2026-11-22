@@ -182,6 +182,54 @@ abstract class AppLocalizations {
   /// **'Swipe up to learn more ↑'**
   String get swipeHint;
 
+  /// No description provided for @progressSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered {answered}/{total} · Correct {correct}/{total}'**
+  String progressSummary(int answered, int correct, int total);
+
+  /// No description provided for @quizUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Unanswered'**
+  String get quizUnanswered;
+
+  /// No description provided for @quizAnsweredCorrectly.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered correctly'**
+  String get quizAnsweredCorrectly;
+
+  /// No description provided for @quizAnsweredIncorrectly.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered incorrectly'**
+  String get quizAnsweredIncorrectly;
+
+  /// No description provided for @retryQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Quiz'**
+  String get retryQuiz;
+
+  /// No description provided for @progressLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your progress.'**
+  String get progressLoadFailed;
+
+  /// No description provided for @progressSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your answer. Tap an option to try again.'**
+  String get progressSaveFailed;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
   /// No description provided for @quizSkyQuestion.
   ///
   /// In en, this message translates to:
