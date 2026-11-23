@@ -1,13 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'l10n/app_localizations.dart';
 import 'data/quiz_data.dart';
+import 'data/quiz_progress_store.dart';
+import 'data/reel_data.dart';
+import 'l10n/app_localizations.dart';
+import 'models/learning_reel.dart';
 import 'screens/quiz_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/reel_video_player.dart';
-import 'models/learning_reel.dart';
-import 'data/reel_data.dart';
 
 void main() {
   runApp(const ReelMindApp());
@@ -21,6 +22,8 @@ class ReelMindApp extends StatefulWidget {
 }
 
 class _ReelMindAppState extends State<ReelMindApp> {
+  final _progressStore = QuizProgressStore();
+  late Future<Map<LessonId, bool>> _initialResults = _progressStore.load();
   Locale? _selectedLocale;
 
   void _changeLocale(Locale? locale) {
@@ -45,27 +48,73 @@ class _ReelMindAppState extends State<ReelMindApp> {
           PointerDeviceKind.trackpad,
         },
       ),
-      home: VideoFeedScreen(onLocaleChanged: _changeLocale),
+      home: FutureBuilder<Map<LessonId, bool>>(
+        future: _initialResults,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (snapshot.hasError) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l10n.progressLoadFailed),
+                    TextButton(
+                      onPressed: () {
+                        setState(() => _initialResults = _progressStore.load());
+                      },
+                      child: Text(l10n.tryAgain),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return VideoFeedScreen(
+            onLocaleChanged: _changeLocale,
+            initialResults: snapshot.requireData,
+            onQuizResult: _progressStore.save,
+          );
+        },
+      ),
     );
   }
 }
 
 class VideoFeedScreen extends StatefulWidget {
   final ValueChanged<Locale?> onLocaleChanged;
+  final Map<LessonId, bool> initialResults;
+  final Future<void> Function(LessonId lessonId, {required bool isCorrect})
+  onQuizResult;
 
-  const VideoFeedScreen({super.key, required this.onLocaleChanged});
+  const VideoFeedScreen({
+    super.key,
+    required this.onLocaleChanged,
+    required this.initialResults,
+    required this.onQuizResult,
+  });
 
   @override
   State<VideoFeedScreen> createState() => _VideoFeedScreenState();
 }
 
 class _VideoFeedScreenState extends State<VideoFeedScreen> {
+  late final _results = Map<LessonId, bool>.of(widget.initialResults);
   int _activeIndex = 0;
   bool _isQuizOpen = false;
 
-  Future<void> _openQuiz(int index) async {
+  Future<void> _openQuiz(LessonId lessonId) async {
+    if (_isQuizOpen) return;
+
     final l10n = AppLocalizations.of(context)!;
-    final question = quizForReel(index, l10n);
+    final question = quizForReel(lessonId, l10n);
 
     setState(() {
       _isQuizOpen = true;
@@ -79,7 +128,17 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
 
     try {
       await Navigator.of(context).push<void>(
-        MaterialPageRoute(builder: (context) => QuizScreen(question: question)),
+        MaterialPageRoute(
+          builder: (context) => QuizScreen(
+            question: question,
+            onAnswer: (isCorrect) async {
+              await widget.onQuizResult(lessonId, isCorrect: isCorrect);
+              if (mounted) {
+                setState(() => _results[lessonId] = isCorrect);
+              }
+            },
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -94,6 +153,13 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final reels = buildReels(l10n);
+    final lessonIds = reels.map((reel) => reel.id).toSet();
+    final outcomes = lessonIds.map((id) => _results[id]).whereType<bool>();
+    final progressSummary = l10n.progressSummary(
+      outcomes.length,
+      outcomes.where((isCorrect) => isCorrect).length,
+      lessonIds.length,
+    );
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -109,12 +175,15 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
               });
             },
             itemBuilder: (context, index) {
+              final reel = reels[index];
               return LearningReelCard(
-                reel: reels[index],
+                reel: reel,
                 index: index,
                 total: reels.length,
+                progressSummary: progressSummary,
+                quizResult: _results[reel.id],
                 isActive: index == _activeIndex && !_isQuizOpen,
-                onQuizPressed: () => _openQuiz(index),
+                onQuizPressed: () => _openQuiz(reel.id),
                 onLocaleChanged: widget.onLocaleChanged,
               );
             },
@@ -129,6 +198,8 @@ class LearningReelCard extends StatelessWidget {
   final LearningReel reel;
   final int index;
   final int total;
+  final String progressSummary;
+  final bool? quizResult;
   final bool isActive;
   final ValueChanged<Locale?> onLocaleChanged;
   final VoidCallback onQuizPressed;
@@ -138,6 +209,8 @@ class LearningReelCard extends StatelessWidget {
     required this.reel,
     required this.index,
     required this.total,
+    required this.progressSummary,
+    required this.quizResult,
     required this.isActive,
     required this.onLocaleChanged,
     required this.onQuizPressed,
@@ -147,17 +220,22 @@ class LearningReelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isCompact = MediaQuery.sizeOf(context).height < 650;
+    final (quizStatus, statusColor) = switch (quizResult) {
+      null => (l10n.quizUnanswered, Colors.white70),
+      true => (l10n.quizAnsweredCorrectly, AppColors.success),
+      false => (l10n.quizAnsweredIncorrectly, AppColors.error),
+    };
 
     return Stack(
       fit: StackFit.expand,
       children: [
         // Full-screen video or placeholder.
         if (reel.videoSource != null)
-        ReelVideoPlayer(
-          key: ValueKey(reel.videoSource),
-          source: reel.videoSource!,
-          isActive: isActive,
-        )
+          ReelVideoPlayer(
+            key: ValueKey(reel.videoSource),
+            source: reel.videoSource!,
+            isActive: isActive,
+          )
         else
           Container(
             decoration: BoxDecoration(
@@ -259,6 +337,11 @@ class LearningReelCard extends StatelessWidget {
                     );
                   }),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  progressSummary,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
 
                 Expanded(
                   child: Align(
@@ -295,13 +378,23 @@ class LearningReelCard extends StatelessWidget {
 
                           const SizedBox(height: 24),
 
+                          Text(
+                            quizStatus,
+                            style: TextStyle(color: statusColor),
+                          ),
+                          const SizedBox(height: 8),
+
                           SizedBox(
                             width: double.infinity,
                             height: 54,
                             child: ElevatedButton.icon(
                               onPressed: onQuizPressed,
                               icon: const Icon(Icons.psychology_outlined),
-                              label: Text(l10n.testKnowledge),
+                              label: Text(
+                                quizResult == null
+                                    ? l10n.testKnowledge
+                                    : l10n.retryQuiz,
+                              ),
                             ),
                           ),
 

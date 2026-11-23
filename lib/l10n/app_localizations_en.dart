@@ -55,6 +55,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get swipeHint => 'Swipe up to learn more ↑';
 
   @override
+  String progressSummary(int answered, int correct, int total) {
+    return 'Answered $answered/$total · Correct $correct/$total';
+  }
+
+  @override
+  String get quizUnanswered => 'Unanswered';
+
+  @override
+  String get quizAnsweredCorrectly => 'Answered correctly';
+
+  @override
+  String get quizAnsweredIncorrectly => 'Answered incorrectly';
+
+  @override
+  String get retryQuiz => 'Retry Quiz';
+
+  @override
+  String get progressLoadFailed => 'Couldn\'t load your progress.';
+
+  @override
+  String get progressSaveFailed =>
+      'Couldn\'t save your answer. Tap an option to try again.';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
   String get quizSkyQuestion =>
       'Which color is scattered most strongly by air molecules?';
 

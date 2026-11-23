@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reelmind/widgets/reel_video_player.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:reelmind/main.dart';
 import 'package:reelmind/models/video_source.dart';
@@ -88,6 +90,8 @@ void main() {
   late VideoPlayerPlatform originalPlatform;
 
   setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
     originalPlatform = VideoPlayerPlatform.instance;
     fake = FakeVideoPlatform();
     VideoPlayerPlatform.instance = fake;
