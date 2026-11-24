@@ -4,11 +4,21 @@ import '../l10n/app_localizations.dart';
 import '../models/quiz_question.dart';
 import '../theme/app_theme.dart';
 
+enum QuizAction { nextLesson, replay }
+
 class QuizScreen extends StatefulWidget {
   final QuizQuestion question;
+  final bool hasNextLesson;
+  final bool hasVideo;
   final Future<void> Function(bool isCorrect) onAnswer;
 
-  const QuizScreen({super.key, required this.question, required this.onAnswer});
+  const QuizScreen({
+    super.key,
+    required this.question,
+    required this.onAnswer,
+    required this.hasNextLesson,
+    required this.hasVideo,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -52,79 +62,101 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: ListView(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              children: [
-                const Icon(
-                  Icons.psychology_outlined,
-                  color: AppColors.accent,
-                  size: 54,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.psychology_outlined,
+                    color: AppColors.accent,
+                    size: 54,
+                  ),
 
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                Text(
-                  question.question,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                  Text(
+                    question.question,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
 
-                const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                for (int i = 0; i < question.options.length; i++)
-                  _buildOption(i, answered, enabled: !answered && !_isSaving),
+                  for (int i = 0; i < question.options.length; i++)
+                    _buildOption(i, answered, enabled: !answered && !_isSaving),
 
-                if (_isSaving) const LinearProgressIndicator(),
-                if (_saveFailed)
-                  Text(l10n.progressSaveFailed, textAlign: TextAlign.center),
+                  if (_isSaving) const LinearProgressIndicator(),
+                  if (_saveFailed)
+                    Text(l10n.progressSaveFailed, textAlign: TextAlign.center),
 
-                if (answered) ...[
-                  const SizedBox(height: 20),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: isCorrect
-                          ? AppColors.success.withValues(alpha: 0.12)
-                          : AppColors.error.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: isCorrect ? AppColors.success : AppColors.error,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          isCorrect ? Icons.check_circle : Icons.info_outline,
+                  if (answered) ...[
+                    const SizedBox(height: 20),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: isCorrect
+                            ? AppColors.success.withValues(alpha: 0.12)
+                            : AppColors.error.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
                           color: isCorrect
                               ? AppColors.success
                               : AppColors.error,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            isCorrect
-                                ? l10n.quizCorrect
-                                : '${l10n.quizWrong} '
-                                      '${question.options[question.correctIndex]}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isCorrect ? Icons.check_circle : Icons.info_outline,
+                            color: isCorrect
+                                ? AppColors.success
+                                : AppColors.error,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              isCorrect
+                                  ? l10n.quizCorrect
+                                  : '${l10n.quizWrong} '
+                                        '${question.options[question.correctIndex]}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 12),
+                    Text(question.explanation),
+                    const SizedBox(height: 24),
+                    if (widget.hasNextLesson)
+                      FilledButton.icon(
+                        onPressed: () =>
+                            Navigator.pop(context, QuizAction.nextLesson),
+                        icon: const Icon(Icons.arrow_forward),
+                        label: Text(l10n.nextLesson),
+                      ),
+                    if (!isCorrect && widget.hasVideo)
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            Navigator.pop(context, QuizAction.replay),
+                        icon: const Icon(Icons.replay),
+                        label: Text(l10n.replayVideo),
+                      ),
+                  ],
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: _isSaving
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back),
+                    label: Text(l10n.backToFeed),
                   ),
                 ],
-
-                const SizedBox(height: 32),
-
-                FilledButton.icon(
-                  onPressed: _isSaving
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back),
-                  label: Text(l10n.backToFeed),
-                ),
-              ],
+              ),
             ),
           ),
         ),

@@ -9,6 +9,7 @@ QuizQuestion quizForReel(LessonId id, AppLocalizations l10n) {
         question: l10n.quizSkyQuestion,
         options: [l10n.quizSkyRed, l10n.quizSkyBlue, l10n.quizSkyGreen],
         correctIndex: 1,
+        explanation: l10n.quizSkyExplanation,
       );
 
     case LessonId.apiIntro:
@@ -20,6 +21,7 @@ QuizQuestion quizForReel(LessonId id, AppLocalizations l10n) {
           l10n.quizApiBrightness,
         ],
         correctIndex: 0,
+        explanation: l10n.quizApiExplanation,
       );
 
     case LessonId.compoundInterest:
@@ -31,6 +33,7 @@ QuizQuestion quizForReel(LessonId id, AppLocalizations l10n) {
           l10n.quizInterestPrevious,
         ],
         correctIndex: 2,
+        explanation: l10n.quizInterestExplanation,
       );
   }
 }
