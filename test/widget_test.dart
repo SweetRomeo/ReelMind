@@ -42,6 +42,7 @@ void main() {
 
     expect(find.text('Gökyüzü neden mavidir?'), findsOneWidget);
     expect(find.text('Bilgini Test Et'), findsOneWidget);
+    expect(find.byTooltip('Dersler'), findsOneWidget);
 
     // Switch back to English.
     await tester.tap(find.byKey(const Key('language-menu')));
@@ -178,6 +179,53 @@ void main() {
       expect(await QuizProgressStore().load(), {LessonId.skyColor: false});
     },
   );
+
+  testWidgets('Lesson list shows saved results and jumps to a lesson', (
+    tester,
+  ) async {
+    final store = QuizProgressStore();
+    await store.save(LessonId.skyColor, isCorrect: true);
+    await store.save(LessonId.apiIntro, isCorrect: false);
+
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Lessons'));
+    await tester.pumpAndSettle();
+
+    final sheet = find.byType(BottomSheet);
+    Finder inSheet(String text) =>
+        find.descendant(of: sheet, matching: find.text(text));
+
+    expect(inSheet('Answered correctly'), findsOneWidget);
+    expect(inSheet('Answered incorrectly'), findsOneWidget);
+    expect(inSheet('Unanswered'), findsOneWidget);
+    expect(
+      tester
+          .widget<ListTile>(
+            find.ancestor(
+              of: inSheet('Why is the sky blue?'),
+              matching: find.byType(ListTile),
+            ),
+          )
+          .selected,
+      isTrue,
+    );
+
+    await tester.tap(inSheet('What is an API?'));
+    await tester.pumpAndSettle();
+
+    expect(sheet, findsNothing);
+    expect(find.text('What is an API?'), findsOneWidget);
+    expect(find.text('2/3'), findsOneWidget);
+    expect(find.text('Answered incorrectly'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Lessons'));
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(inSheet('Unanswered'))).pop();
+    await tester.pumpAndSettle();
+
+    expect(find.text('2/3'), findsOneWidget);
+  });
 
   testWidgets('Feed does not overflow on small phones', (tester) async {
     await tester.binding.setSurfaceSize(const Size(320, 568));
