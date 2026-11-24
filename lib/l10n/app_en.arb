@@ -3,6 +3,7 @@
   "@@locale": "en",
   "language": "Language",
   "systemLanguage": "System default",
+  "languageSaveFailed": "Couldn't save your language preference. Please try again.",
   "science": "SCIENCE",
   "technology": "TECHNOLOGY",
   "finance": "FINANCE",
@@ -28,7 +29,7 @@
   "quizAnsweredCorrectly": "Answered correctly",
   "quizAnsweredIncorrectly": "Answered incorrectly",
   "retryQuiz": "Retry Quiz",
-  "progressLoadFailed": "Couldn't load your progress.",
+  "savedDataLoadFailed": "Couldn't load your saved data.",
   "progressSaveFailed": "Couldn't save your answer. Tap an option to try again.",
   "tryAgain": "Try again",
 

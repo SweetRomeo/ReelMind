@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'System default'**
   String get systemLanguage;
 
+  /// No description provided for @languageSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your language preference. Please try again.'**
+  String get languageSaveFailed;
+
   /// No description provided for @science.
   ///
   /// In en, this message translates to:
@@ -218,11 +224,11 @@ abstract class AppLocalizations {
   /// **'Retry Quiz'**
   String get retryQuiz;
 
-  /// No description provided for @progressLoadFailed.
+  /// No description provided for @savedDataLoadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load your progress.'**
-  String get progressLoadFailed;
+  /// **'Couldn\'t load your saved data.'**
+  String get savedDataLoadFailed;
 
   /// No description provided for @progressSaveFailed.
   ///
