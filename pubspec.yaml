@@ -66,6 +66,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/videos/sky_color_tr_001.mp4
+    - assets/videos/sky_color_en_001.mp4
     - assets/videos/api_intro_tr_001.mp4
     - assets/videos/api_intro_en_001.mp4
 

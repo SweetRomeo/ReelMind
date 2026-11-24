@@ -1,0 +1,41 @@
+{
+  "api": [
+    {
+      "start": 0,
+      "tr": "Hava durumu uygulaması, ekrandaki sıcaklığı nereden biliyor?",
+      "en": "Where does a weather app get the temperature on your screen?"
+    },
+    {
+      "start": 6,
+      "tr": "Uygulama, hava servisinden İstanbul'un sıcaklığını istiyor.",
+      "en": "The app asks the weather service for the temperature in Istanbul."
+    },
+    {
+      "start": 12,
+      "tr": "Servis, örneğin yirmi iki derece yanıtını veriyor. Uygulama bunu ekranda gösteriyor.",
+      "en": "The service sends back a number, say twenty-two degrees. The app displays it."
+    },
+    {
+      "start": 19,
+      "tr": "Bu veri alışverişinin kurallarını tanımlayan arayüze ey pi ay denir.",
+      "en": "An A P I defines the rules that let these programs exchange data."
+    }
+  ],
+  "sky": [
+    {
+      "start": 0,
+      "tr": "Gökyüzü neden mavi? Beyaz görünen güneş ışığı aslında birçok renk içerir.",
+      "en": "Why does the sky look blue? Sunlight looks white, but it contains many colors."
+    },
+    {
+      "start": 8,
+      "tr": "Güneş ışığı atmosfere girince hava molekülleri ışığı saçar. Mavi ışık, kırmızı ışığa göre daha çok saçılır.",
+      "en": "When sunlight enters our atmosphere, air molecules scatter it. They scatter blue light more strongly than red light."
+    },
+    {
+      "start": 17,
+      "tr": "Saçılan mavi ışık, gökyüzünün farklı yönlerinden gözümüze ulaşır. Bu yüzden gökyüzünü mavi görürüz.",
+      "en": "Scattered blue light reaches your eyes from many directions. That makes the sky look blue."
+    }
+  ]
+}
