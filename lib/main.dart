@@ -6,6 +6,7 @@ import 'data/quiz_progress_store.dart';
 import 'data/reel_data.dart';
 import 'l10n/app_localizations.dart';
 import 'models/learning_reel.dart';
+import 'screens/lesson_overview.dart';
 import 'screens/quiz_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/reel_video_player.dart';
@@ -107,17 +108,47 @@ class VideoFeedScreen extends StatefulWidget {
 
 class _VideoFeedScreenState extends State<VideoFeedScreen> {
   late final _results = Map<LessonId, bool>.of(widget.initialResults);
+  final _pageController = PageController();
   int _activeIndex = 0;
-  bool _isQuizOpen = false;
+  bool _isOverlayOpen = false;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openLessonOverview(List<LearningReel> reels) async {
+    if (_isOverlayOpen) return;
+    setState(() => _isOverlayOpen = true);
+
+    try {
+      final index = await showModalBottomSheet<int>(
+        context: context,
+        builder: (context) => LessonOverview(
+          reels: reels,
+          results: _results,
+          activeIndex: _activeIndex,
+        ),
+      );
+      if (mounted && index != null && index != _activeIndex) {
+        _pageController.jumpToPage(index);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isOverlayOpen = false);
+      }
+    }
+  }
 
   Future<void> _openQuiz(LessonId lessonId) async {
-    if (_isQuizOpen) return;
+    if (_isOverlayOpen) return;
 
     final l10n = AppLocalizations.of(context)!;
     final question = quizForReel(lessonId, l10n);
 
     setState(() {
-      _isQuizOpen = true;
+      _isOverlayOpen = true;
     });
 
     // Allow the video widget to receive isActive = false
@@ -143,7 +174,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isQuizOpen = false;
+          _isOverlayOpen = false;
         });
       }
     }
@@ -167,6 +198,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
           child: PageView.builder(
+            controller: _pageController,
             scrollDirection: Axis.vertical,
             itemCount: reels.length,
             onPageChanged: (index) {
@@ -182,7 +214,8 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 total: reels.length,
                 progressSummary: progressSummary,
                 quizResult: _results[reel.id],
-                isActive: index == _activeIndex && !_isQuizOpen,
+                isActive: index == _activeIndex && !_isOverlayOpen,
+                onOverviewPressed: () => _openLessonOverview(reels),
                 onQuizPressed: () => _openQuiz(reel.id),
                 onLocaleChanged: widget.onLocaleChanged,
               );
@@ -202,6 +235,7 @@ class LearningReelCard extends StatelessWidget {
   final bool? quizResult;
   final bool isActive;
   final ValueChanged<Locale?> onLocaleChanged;
+  final VoidCallback onOverviewPressed;
   final VoidCallback onQuizPressed;
 
   const LearningReelCard({
@@ -213,6 +247,7 @@ class LearningReelCard extends StatelessWidget {
     required this.quizResult,
     required this.isActive,
     required this.onLocaleChanged,
+    required this.onOverviewPressed,
     required this.onQuizPressed,
   });
 
@@ -220,10 +255,10 @@ class LearningReelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isCompact = MediaQuery.sizeOf(context).height < 650;
-    final (quizStatus, statusColor) = switch (quizResult) {
-      null => (l10n.quizUnanswered, Colors.white70),
-      true => (l10n.quizAnsweredCorrectly, AppColors.success),
-      false => (l10n.quizAnsweredIncorrectly, AppColors.error),
+    final statusColor = switch (quizResult) {
+      null => Colors.white70,
+      true => AppColors.success,
+      false => AppColors.error,
     };
 
     return Stack(
@@ -293,6 +328,11 @@ class LearningReelCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text('${index + 1}/$total'),
+                    IconButton(
+                      tooltip: l10n.lessonOverview,
+                      onPressed: onOverviewPressed,
+                      icon: const Icon(Icons.list_alt_outlined),
+                    ),
                     PopupMenuButton<String>(
                       key: const Key('language-menu'),
                       tooltip: l10n.language,
@@ -379,7 +419,7 @@ class LearningReelCard extends StatelessWidget {
                           const SizedBox(height: 24),
 
                           Text(
-                            quizStatus,
+                            quizStatusLabel(l10n, quizResult),
                             style: TextStyle(color: statusColor),
                           ),
                           const SizedBox(height: 8),

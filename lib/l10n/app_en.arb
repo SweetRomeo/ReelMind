@@ -15,6 +15,7 @@
   "testKnowledge": "Test Your Knowledge",
   "quizComingSoon": "Quiz coming soon!",
   "swipeHint": "Swipe up to learn more ↑",
+  "lessonOverview": "Lessons",
   "progressSummary": "Answered {answered}/{total} · Correct {correct}/{total}",
   "@progressSummary": {
     "placeholders": {

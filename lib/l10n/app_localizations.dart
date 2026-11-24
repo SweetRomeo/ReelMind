@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'Swipe up to learn more ↑'**
   String get swipeHint;
 
+  /// No description provided for @lessonOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get lessonOverview;
+
   /// No description provided for @progressSummary.
   ///
   /// In en, this message translates to:

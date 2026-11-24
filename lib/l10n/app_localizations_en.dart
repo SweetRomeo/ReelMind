@@ -55,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get swipeHint => 'Swipe up to learn more ↑';
 
   @override
+  String get lessonOverview => 'Lessons';
+
+  @override
   String progressSummary(int answered, int correct, int total) {
     return 'Answered $answered/$total · Correct $correct/$total';
   }

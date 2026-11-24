@@ -55,6 +55,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get swipeHint => 'Yeni bilgiler için yukarı kaydır ↑';
 
   @override
+  String get lessonOverview => 'Dersler';
+
+  @override
   String progressSummary(int answered, int correct, int total) {
     return 'Yanıtlanan $answered/$total · Doğru $correct/$total';
   }

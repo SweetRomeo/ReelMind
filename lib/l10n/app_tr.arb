@@ -15,6 +15,7 @@
   "testKnowledge": "Bilgini Test Et",
   "quizComingSoon": "Quiz özelliği yakında!",
   "swipeHint": "Yeni bilgiler için yukarı kaydır ↑",
+  "lessonOverview": "Dersler",
   "progressSummary": "Yanıtlanan {answered}/{total} · Doğru {correct}/{total}",
   "quizUnanswered": "Yanıtlanmadı",
   "quizAnsweredCorrectly": "Doğru yanıtlandı",
