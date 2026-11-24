@@ -134,6 +134,24 @@ abstract class AppLocalizations {
   /// **'Pause'**
   String get pauseVideo;
 
+  /// No description provided for @startMiniQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the mini quiz'**
+  String get startMiniQuiz;
+
+  /// No description provided for @replayVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replay video'**
+  String get replayVideo;
+
+  /// No description provided for @nextLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Next lesson'**
+  String get nextLesson;
+
   /// No description provided for @videoLoadFailed.
   ///
   /// In en, this message translates to:
@@ -308,6 +326,12 @@ abstract class AppLocalizations {
   /// **'Green'**
   String get quizSkyGreen;
 
+  /// No description provided for @quizSkyExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Air molecules scatter shorter wavelengths more strongly, so blue light scatters more than green or red light.'**
+  String get quizSkyExplanation;
+
   /// No description provided for @quizApiQuestion.
   ///
   /// In en, this message translates to:
@@ -332,6 +356,12 @@ abstract class AppLocalizations {
   /// **'Increase screen brightness'**
   String get quizApiBrightness;
 
+  /// No description provided for @quizApiExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'An API defines how one application can request data from another and read the response.'**
+  String get quizApiExplanation;
+
   /// No description provided for @quizInterestQuestion.
   ///
   /// In en, this message translates to:
@@ -355,6 +385,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Interest earned on previous interest'**
   String get quizInterestPrevious;
+
+  /// No description provided for @quizInterestExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Each period’s interest is added to the balance that earns interest in the next period.'**
+  String get quizInterestExplanation;
 
   /// No description provided for @quizCorrect.
   ///
