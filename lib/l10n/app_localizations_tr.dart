@@ -16,6 +16,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get systemLanguage => 'Sistem dili';
 
   @override
+  String get unmuteVideo => 'Sesi aç';
+
+  @override
+  String get muteVideo => 'Sesi kapat';
+
+  @override
+  String get playVideo => 'Oynat';
+
+  @override
+  String get pauseVideo => 'Duraklat';
+
+  @override
+  String get videoLoadFailed => 'Video yüklenemedi.';
+
+  @override
+  String get videoPlaybackFailed => 'Video oynatılamadı.';
+
+  @override
+  String get videoVolumeFailed => 'Ses düzeyi değiştirilemedi.';
+
+  @override
   String get languageSaveFailed =>
       'Dil tercihin kaydedilemedi. Lütfen tekrar dene.';
 

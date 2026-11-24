@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+
+import '../l10n/app_localizations.dart';
 import '../models/video_source.dart';
+
+enum _VideoError { load, playback, volume }
 
 class ReelVideoPlayer extends StatefulWidget {
   final VideoSource source;
@@ -21,7 +25,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
   bool _ready = false;
   bool _muted = true;
-  String? _error;
+  _VideoError? _error;
 
   @override
   void initState() {
@@ -30,8 +34,9 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     final source = widget.source;
     _controller = switch (source.type) {
       VideoSourceType.asset => VideoPlayerController.asset(source.location),
-      VideoSourceType.network =>
-        VideoPlayerController.networkUrl(Uri.parse(source.location)),
+      VideoSourceType.network => VideoPlayerController.networkUrl(
+        Uri.parse(source.location),
+      ),
     };
 
     _initializeVideo();
@@ -66,7 +71,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       debugPrint('Video initialization error: $e');
 
       if (mounted) {
-        setState(() => _error = 'Video yüklenemedi');
+        setState(() => _error = _VideoError.load);
       }
     }
   }
@@ -107,7 +112,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       if (mounted) setState(() {});
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'Video oynatılamadı');
+        setState(() => _error = _VideoError.playback);
       }
     }
   }
@@ -117,13 +122,12 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
     try {
       await _controller.setVolume(nextMuted ? 0 : 1);
-
       if (mounted) {
         setState(() => _muted = nextMuted);
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'Ses ayarlanamadı');
+        setState(() => _error = _VideoError.volume);
       }
     }
   }
@@ -136,8 +140,15 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (_error != null) {
-      return Center(child: Text(_error!));
+    final l10n = AppLocalizations.of(context)!;
+    if (_error case final error?) {
+      return Center(
+        child: Text(switch (error) {
+          _VideoError.load => l10n.videoLoadFailed,
+          _VideoError.playback => l10n.videoPlaybackFailed,
+          _VideoError.volume => l10n.videoVolumeFailed,
+        }),
+      );
     }
 
     if (!_ready) {
@@ -166,18 +177,19 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
             ),
             child: Column(
               children: [
-                IconButton(
-                  tooltip: 'Play or pause',
-                  onPressed: _togglePlayback,
-                  icon: Icon(
-                    _controller.value.isPlaying
-                        ? Icons.pause_circle
-                        : Icons.play_circle,
-                    color: Colors.white,
+                ValueListenableBuilder<VideoPlayerValue>(
+                  valueListenable: _controller,
+                  builder: (context, value, _) => IconButton(
+                    tooltip: value.isPlaying ? l10n.pauseVideo : l10n.playVideo,
+                    onPressed: _togglePlayback,
+                    icon: Icon(
+                      value.isPlaying ? Icons.pause_circle : Icons.play_circle,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Mute or unmute',
+                  tooltip: _muted ? l10n.unmuteVideo : l10n.muteVideo,
                   onPressed: _toggleMute,
                   icon: Icon(
                     _muted ? Icons.volume_off : Icons.volume_up,

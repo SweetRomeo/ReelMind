@@ -110,6 +110,48 @@ abstract class AppLocalizations {
   /// **'System default'**
   String get systemLanguage;
 
+  /// No description provided for @unmuteVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get unmuteVideo;
+
+  /// No description provided for @muteVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get muteVideo;
+
+  /// No description provided for @playVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get playVideo;
+
+  /// No description provided for @pauseVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pauseVideo;
+
+  /// No description provided for @videoLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the video.'**
+  String get videoLoadFailed;
+
+  /// No description provided for @videoPlaybackFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t play the video.'**
+  String get videoPlaybackFailed;
+
+  /// No description provided for @videoVolumeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t change the volume.'**
+  String get videoVolumeFailed;
+
   /// No description provided for @languageSaveFailed.
   ///
   /// In en, this message translates to:

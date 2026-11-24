@@ -16,6 +16,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemLanguage => 'System default';
 
   @override
+  String get unmuteVideo => 'Unmute';
+
+  @override
+  String get muteVideo => 'Mute';
+
+  @override
+  String get playVideo => 'Play';
+
+  @override
+  String get pauseVideo => 'Pause';
+
+  @override
+  String get videoLoadFailed => 'Couldn\'t load the video.';
+
+  @override
+  String get videoPlaybackFailed => 'Couldn\'t play the video.';
+
+  @override
+  String get videoVolumeFailed => 'Couldn\'t change the volume.';
+
+  @override
   String get languageSaveFailed =>
       'Couldn\'t save your language preference. Please try again.';
 

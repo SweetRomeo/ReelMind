@@ -5,6 +5,7 @@ import '../models/learning_reel.dart';
 import '../models/video_source.dart';
 
 List<LearningReel> buildReels(AppLocalizations l10n) {
+  final language = l10n.localeName.startsWith('tr') ? 'tr' : 'en';
   return [
     LearningReel(
       id: LessonId.skyColor,
@@ -13,6 +14,9 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       description: l10n.skyDescription,
       icon: Icons.wb_sunny_outlined,
       color: const Color(0xFF1565C0),
+      videoSource: VideoSource.asset(
+        'assets/videos/sky_color_${language}_001.mp4',
+      ),
     ),
     LearningReel(
       id: LessonId.apiIntro,
@@ -22,9 +26,7 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       icon: Icons.code,
       color: const Color(0xFF673AB7),
       videoSource: VideoSource.asset(
-        l10n.localeName.startsWith('tr')
-            ? 'assets/videos/api_intro_tr_001.mp4'
-            : 'assets/videos/api_intro_en_001.mp4',
+        'assets/videos/api_intro_${language}_001.mp4',
       ),
     ),
     LearningReel(

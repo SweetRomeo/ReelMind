@@ -7,11 +7,13 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:reelmind/main.dart';
+import 'package:reelmind/l10n/app_localizations.dart';
 import 'package:reelmind/models/video_source.dart';
 
 class FakeVideoPlatform extends VideoPlayerPlatform {
   final calls = <String>[];
   final playingIds = <int>{};
+  final volumes = <int, double>{};
   final _streams = <int, StreamController<VideoEvent>>{};
   final firstDisposal = Completer<void>();
   int _nextId = 1;
@@ -57,7 +59,19 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   Future<void> setLooping(int playerId, bool looping) async {}
 
   @override
-  Future<void> setVolume(int playerId, double volume) async {}
+  Future<void> setVolume(int playerId, double volume) async {
+    volumes[playerId] = volume;
+  }
+
+  void pauseFromSystem(int playerId) {
+    playingIds.remove(playerId);
+    _streams[playerId]!.add(
+      VideoEvent(
+        eventType: VideoEventType.isPlayingStateUpdate,
+        isPlaying: false,
+      ),
+    );
+  }
 
   @override
   Future<void> setPlaybackSpeed(int playerId, double speed) async {}
@@ -104,6 +118,8 @@ void main() {
   Future<void> showPlayer(WidgetTester tester, bool isActive) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ReelVideoPlayer(
             source: const VideoSource.network('https://example.com/test.mp4'),
@@ -199,8 +215,31 @@ void main() {
     await tester.pumpWidget(const ReelMindApp());
     await tester.pumpAndSettle();
 
-    // İlk kartta video yok.
+    final skyPlayer = fake.playingIds.single;
+    expect(fake.volumes[skyPlayer], 0);
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pumpAndSettle();
+    expect(fake.volumes[skyPlayer], 1);
+    expect(fake.playingIds, {skyPlayer});
+
+    fake.pauseFromSystem(skyPlayer);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Play'));
+    await tester.pumpAndSettle();
+    expect(fake.playingIds, {skyPlayer});
+
+    await tester.tap(find.byTooltip('Mute'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Pause'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pumpAndSettle();
+    expect(fake.volumes[skyPlayer], 1);
     expect(fake.playingIds, isEmpty);
+
+    await tester.tap(find.byTooltip('Play'));
+    await tester.pumpAndSettle();
+    expect(fake.playingIds, {skyPlayer});
 
     // İkinci karttaki API videosu oynar.
     await tester.drag(find.byType(PageView), const Offset(0, -700));
@@ -217,6 +256,7 @@ void main() {
       'assets/videos/api_intro_en_001.mp4',
     );
     expect(fake.playingIds, hasLength(1));
+    expect(fake.playingIds, isNot(contains(skyPlayer)));
 
     // Üçüncü karta geçince oynatma durur.
     await tester.drag(find.byType(PageView), const Offset(0, -700));
@@ -237,6 +277,8 @@ void main() {
   testWidgets('Local asset video plays and is disposed', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ReelVideoPlayer(
             source: VideoSource.asset('assets/videos/api_intro_en_001.mp4'),
