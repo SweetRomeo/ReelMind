@@ -3,6 +3,7 @@
   "@@locale": "tr",
   "language": "Dil",
   "systemLanguage": "Sistem dili",
+  "languageSaveFailed": "Dil tercihin kaydedilemedi. Lütfen tekrar dene.",
   "science": "BİLİM",
   "technology": "TEKNOLOJİ",
   "finance": "FİNANS",
@@ -21,7 +22,7 @@
   "quizAnsweredCorrectly": "Doğru yanıtlandı",
   "quizAnsweredIncorrectly": "Yanlış yanıtlandı",
   "retryQuiz": "Testi Tekrar Çöz",
-  "progressLoadFailed": "İlerlemen yüklenemedi.",
+  "savedDataLoadFailed": "Kayıtlı verilerin yüklenemedi.",
   "progressSaveFailed": "Yanıtın kaydedilemedi. Tekrar denemek için bir seçeneğe dokun.",
   "tryAgain": "Tekrar dene",
 

@@ -16,6 +16,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemLanguage => 'System default';
 
   @override
+  String get languageSaveFailed =>
+      'Couldn\'t save your language preference. Please try again.';
+
+  @override
   String get science => 'SCIENCE';
 
   @override
@@ -75,7 +79,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retryQuiz => 'Retry Quiz';
 
   @override
-  String get progressLoadFailed => 'Couldn\'t load your progress.';
+  String get savedDataLoadFailed => 'Couldn\'t load your saved data.';
 
   @override
   String get progressSaveFailed =>

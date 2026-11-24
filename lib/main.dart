@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'data/language_preference_store.dart';
 import 'data/quiz_data.dart';
 import 'data/quiz_progress_store.dart';
 import 'data/reel_data.dart';
@@ -24,13 +25,39 @@ class ReelMindApp extends StatefulWidget {
 
 class _ReelMindAppState extends State<ReelMindApp> {
   final _progressStore = QuizProgressStore();
-  late Future<Map<LessonId, bool>> _initialResults = _progressStore.load();
+  final _languageStore = LanguagePreferenceStore();
+  late Future<Map<LessonId, bool>> _initialResults = _loadSavedData();
   Locale? _selectedLocale;
+  bool _isSavingLanguage = false;
 
-  void _changeLocale(Locale? locale) {
-    setState(() {
-      _selectedLocale = locale;
-    });
+  Future<Map<LessonId, bool>> _loadSavedData() async {
+    final (locale, results) = await (
+      _languageStore.load(),
+      _progressStore.load(),
+    ).wait;
+    if (mounted && locale != _selectedLocale) {
+      setState(() => _selectedLocale = locale);
+    }
+    return results;
+  }
+
+  Future<void> _changeLocale(BuildContext context, Locale? locale) async {
+    if (_isSavingLanguage || locale == _selectedLocale) return;
+    setState(() => _isSavingLanguage = true);
+    try {
+      await _languageStore.save(locale);
+      if (mounted) setState(() => _selectedLocale = locale);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.languageSaveFailed),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSavingLanguage = false);
+    }
   }
 
   @override
@@ -65,10 +92,10 @@ class _ReelMindAppState extends State<ReelMindApp> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(l10n.progressLoadFailed),
+                    Text(l10n.savedDataLoadFailed),
                     TextButton(
                       onPressed: () {
-                        setState(() => _initialResults = _progressStore.load());
+                        setState(() => _initialResults = _loadSavedData());
                       },
                       child: Text(l10n.tryAgain),
                     ),
@@ -79,7 +106,10 @@ class _ReelMindAppState extends State<ReelMindApp> {
           }
 
           return VideoFeedScreen(
-            onLocaleChanged: _changeLocale,
+            selectedLocale: _selectedLocale,
+            onLocaleChanged: _isSavingLanguage
+                ? null
+                : (locale) => _changeLocale(context, locale),
             initialResults: snapshot.requireData,
             onQuizResult: _progressStore.save,
           );
@@ -90,13 +120,15 @@ class _ReelMindAppState extends State<ReelMindApp> {
 }
 
 class VideoFeedScreen extends StatefulWidget {
-  final ValueChanged<Locale?> onLocaleChanged;
+  final Locale? selectedLocale;
+  final ValueChanged<Locale?>? onLocaleChanged;
   final Map<LessonId, bool> initialResults;
   final Future<void> Function(LessonId lessonId, {required bool isCorrect})
   onQuizResult;
 
   const VideoFeedScreen({
     super.key,
+    this.selectedLocale,
     required this.onLocaleChanged,
     required this.initialResults,
     required this.onQuizResult,
@@ -217,6 +249,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 isActive: index == _activeIndex && !_isOverlayOpen,
                 onOverviewPressed: () => _openLessonOverview(reels),
                 onQuizPressed: () => _openQuiz(reel.id),
+                selectedLocale: widget.selectedLocale,
                 onLocaleChanged: widget.onLocaleChanged,
               );
             },
@@ -234,7 +267,8 @@ class LearningReelCard extends StatelessWidget {
   final String progressSummary;
   final bool? quizResult;
   final bool isActive;
-  final ValueChanged<Locale?> onLocaleChanged;
+  final Locale? selectedLocale;
+  final ValueChanged<Locale?>? onLocaleChanged;
   final VoidCallback onOverviewPressed;
   final VoidCallback onQuizPressed;
 
@@ -246,6 +280,7 @@ class LearningReelCard extends StatelessWidget {
     required this.progressSummary,
     required this.quizResult,
     required this.isActive,
+    this.selectedLocale,
     required this.onLocaleChanged,
     required this.onOverviewPressed,
     required this.onQuizPressed,
@@ -337,20 +372,27 @@ class LearningReelCard extends StatelessWidget {
                       key: const Key('language-menu'),
                       tooltip: l10n.language,
                       icon: const Icon(Icons.language),
+                      enabled: onLocaleChanged != null,
                       onSelected: (language) {
-                        onLocaleChanged(
+                        onLocaleChanged?.call(
                           language == 'system' ? null : Locale(language),
                         );
                       },
                       itemBuilder: (context) => [
-                        PopupMenuItem(
+                        CheckedPopupMenuItem(
                           value: 'system',
+                          checked: selectedLocale == null,
                           child: Text(l10n.systemLanguage),
                         ),
-                        const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
-                        const PopupMenuItem(
+                        CheckedPopupMenuItem(
+                          value: 'tr',
+                          checked: selectedLocale?.languageCode == 'tr',
+                          child: const Text('Türkçe'),
+                        ),
+                        CheckedPopupMenuItem(
                           value: 'en',
-                          child: Text('English'),
+                          checked: selectedLocale?.languageCode == 'en',
+                          child: const Text('English'),
                         ),
                       ],
                     ),

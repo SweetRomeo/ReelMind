@@ -16,6 +16,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get systemLanguage => 'Sistem dili';
 
   @override
+  String get languageSaveFailed =>
+      'Dil tercihin kaydedilemedi. Lütfen tekrar dene.';
+
+  @override
   String get science => 'BİLİM';
 
   @override
@@ -75,7 +79,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get retryQuiz => 'Testi Tekrar Çöz';
 
   @override
-  String get progressLoadFailed => 'İlerlemen yüklenemedi.';
+  String get savedDataLoadFailed => 'Kayıtlı verilerin yüklenemedi.';
 
   @override
   String get progressSaveFailed =>
