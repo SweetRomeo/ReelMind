@@ -173,9 +173,11 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
     }
   }
 
-  Future<void> _openQuiz(LessonId lessonId) async {
-    if (_isOverlayOpen) return;
+  Future<QuizAction?> _openQuiz(List<LearningReel> reels, int index) async {
+    if (_isOverlayOpen) return null;
 
+    final reel = reels[index];
+    final lessonId = reel.id;
     final l10n = AppLocalizations.of(context)!;
     final question = quizForReel(lessonId, l10n);
 
@@ -187,13 +189,15 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
     // before opening the quiz screen.
     await WidgetsBinding.instance.endOfFrame;
 
-    if (!mounted) return;
+    if (!mounted) return null;
 
     try {
-      await Navigator.of(context).push<void>(
+      final action = await Navigator.of(context).push<QuizAction>(
         MaterialPageRoute(
           builder: (context) => QuizScreen(
             question: question,
+            hasNextLesson: index + 1 < reels.length,
+            hasVideo: reel.videoSource != null,
             onAnswer: (isCorrect) async {
               await widget.onQuizResult(lessonId, isCorrect: isCorrect);
               if (mounted) {
@@ -203,6 +207,10 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
           ),
         ),
       );
+      if (mounted && action == QuizAction.nextLesson) {
+        _pageController.jumpToPage(index + 1);
+      }
+      return action;
     } finally {
       if (mounted) {
         setState(() {
@@ -241,6 +249,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
             itemBuilder: (context, index) {
               final reel = reels[index];
               return LearningReelCard(
+                key: ValueKey((reel.id, reel.videoSource)),
                 reel: reel,
                 index: index,
                 total: reels.length,
@@ -248,7 +257,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 quizResult: _results[reel.id],
                 isActive: index == _activeIndex && !_isOverlayOpen,
                 onOverviewPressed: () => _openLessonOverview(reels),
-                onQuizPressed: () => _openQuiz(reel.id),
+                onQuizPressed: () => _openQuiz(reels, index),
                 selectedLocale: widget.selectedLocale,
                 onLocaleChanged: widget.onLocaleChanged,
               );
@@ -260,7 +269,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
   }
 }
 
-class LearningReelCard extends StatelessWidget {
+class LearningReelCard extends StatefulWidget {
   final LearningReel reel;
   final int index;
   final int total;
@@ -270,7 +279,7 @@ class LearningReelCard extends StatelessWidget {
   final Locale? selectedLocale;
   final ValueChanged<Locale?>? onLocaleChanged;
   final VoidCallback onOverviewPressed;
-  final VoidCallback onQuizPressed;
+  final Future<QuizAction?> Function() onQuizPressed;
 
   const LearningReelCard({
     super.key,
@@ -287,10 +296,26 @@ class LearningReelCard extends StatelessWidget {
   });
 
   @override
+  State<LearningReelCard> createState() => _LearningReelCardState();
+}
+
+class _LearningReelCardState extends State<LearningReelCard> {
+  bool _videoCompleted = false;
+  int _replayRequest = 0;
+
+  void _replay() => setState(() => _replayRequest++);
+
+  Future<void> _openQuiz() async {
+    final action = await widget.onQuizPressed();
+    if (mounted && action == QuizAction.replay) _replay();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final reel = widget.reel;
     final l10n = AppLocalizations.of(context)!;
     final isCompact = MediaQuery.sizeOf(context).height < 650;
-    final statusColor = switch (quizResult) {
+    final statusColor = switch (widget.quizResult) {
       null => Colors.white70,
       true => AppColors.success,
       false => AppColors.error,
@@ -304,7 +329,11 @@ class LearningReelCard extends StatelessWidget {
           ReelVideoPlayer(
             key: ValueKey(reel.videoSource),
             source: reel.videoSource!,
-            isActive: isActive,
+            isActive: widget.isActive,
+            replayRequest: _replayRequest,
+            onCompletionChanged: (completed) {
+              setState(() => _videoCompleted = completed);
+            },
           )
         else
           Container(
@@ -362,36 +391,36 @@ class LearningReelCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text('${index + 1}/$total'),
+                    Text('${widget.index + 1}/${widget.total}'),
                     IconButton(
                       tooltip: l10n.lessonOverview,
-                      onPressed: onOverviewPressed,
+                      onPressed: widget.onOverviewPressed,
                       icon: const Icon(Icons.list_alt_outlined),
                     ),
                     PopupMenuButton<String>(
                       key: const Key('language-menu'),
                       tooltip: l10n.language,
                       icon: const Icon(Icons.language),
-                      enabled: onLocaleChanged != null,
+                      enabled: widget.onLocaleChanged != null,
                       onSelected: (language) {
-                        onLocaleChanged?.call(
+                        widget.onLocaleChanged?.call(
                           language == 'system' ? null : Locale(language),
                         );
                       },
                       itemBuilder: (context) => [
                         CheckedPopupMenuItem(
                           value: 'system',
-                          checked: selectedLocale == null,
+                          checked: widget.selectedLocale == null,
                           child: Text(l10n.systemLanguage),
                         ),
                         CheckedPopupMenuItem(
                           value: 'tr',
-                          checked: selectedLocale?.languageCode == 'tr',
+                          checked: widget.selectedLocale?.languageCode == 'tr',
                           child: const Text('Türkçe'),
                         ),
                         CheckedPopupMenuItem(
                           value: 'en',
-                          checked: selectedLocale?.languageCode == 'en',
+                          checked: widget.selectedLocale?.languageCode == 'en',
                           child: const Text('English'),
                         ),
                       ],
@@ -402,15 +431,15 @@ class LearningReelCard extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 Row(
-                  children: List.generate(total, (step) {
+                  children: List.generate(widget.total, (step) {
                     return Expanded(
                       child: Container(
                         height: 4,
                         margin: EdgeInsets.only(
-                          right: step == total - 1 ? 0 : 6,
+                          right: step == widget.total - 1 ? 0 : 6,
                         ),
                         decoration: BoxDecoration(
-                          color: step <= index
+                          color: step <= widget.index
                               ? AppColors.accent
                               : Colors.white38,
                           borderRadius: BorderRadius.circular(20),
@@ -421,7 +450,7 @@ class LearningReelCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  progressSummary,
+                  widget.progressSummary,
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
 
@@ -461,7 +490,7 @@ class LearningReelCard extends StatelessWidget {
                           const SizedBox(height: 24),
 
                           Text(
-                            quizStatusLabel(l10n, quizResult),
+                            quizStatusLabel(l10n, widget.quizResult),
                             style: TextStyle(color: statusColor),
                           ),
                           const SizedBox(height: 8),
@@ -470,10 +499,12 @@ class LearningReelCard extends StatelessWidget {
                             width: double.infinity,
                             height: 54,
                             child: ElevatedButton.icon(
-                              onPressed: onQuizPressed,
+                              onPressed: _openQuiz,
                               icon: const Icon(Icons.psychology_outlined),
                               label: Text(
-                                quizResult == null
+                                _videoCompleted
+                                    ? l10n.startMiniQuiz
+                                    : widget.quizResult == null
                                     ? l10n.testKnowledge
                                     : l10n.retryQuiz,
                               ),
@@ -483,10 +514,18 @@ class LearningReelCard extends StatelessWidget {
                           const SizedBox(height: 12),
 
                           Center(
-                            child: Text(
-                              l10n.swipeHint,
-                              style: const TextStyle(color: Colors.white70),
-                            ),
+                            child: _videoCompleted
+                                ? TextButton.icon(
+                                    onPressed: _replay,
+                                    icon: const Icon(Icons.replay),
+                                    label: Text(l10n.replayVideo),
+                                  )
+                                : Text(
+                                    l10n.swipeHint,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),

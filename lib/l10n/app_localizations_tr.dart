@@ -28,6 +28,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pauseVideo => 'Duraklat';
 
   @override
+  String get startMiniQuiz => 'Mini teste geç';
+
+  @override
+  String get replayVideo => 'Videoyu tekrar izle';
+
+  @override
+  String get nextLesson => 'Sonraki ders';
+
+  @override
   String get videoLoadFailed => 'Video yüklenemedi.';
 
   @override
@@ -123,6 +132,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quizSkyGreen => 'Yeşil';
 
   @override
+  String get quizSkyExplanation =>
+      'Hava molekülleri kısa dalga boylarını daha güçlü saçtığı için mavi ışık, yeşil ve kırmızı ışıktan daha fazla saçılır.';
+
+  @override
   String get quizApiQuestion => 'API\'nin temel amacı nedir?';
 
   @override
@@ -136,6 +149,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quizApiBrightness => 'Ekran parlaklığını artırmak';
 
   @override
+  String get quizApiExplanation =>
+      'API, bir uygulamanın başka bir uygulamadan nasıl veri isteyeceğini ve yanıtı nasıl okuyacağını tanımlar.';
+
+  @override
   String get quizInterestQuestion => 'Bileşik faiz neyi kapsar?';
 
   @override
@@ -147,6 +164,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get quizInterestPrevious =>
       'Önceki faiz kazançları üzerinden kazanılan faizi';
+
+  @override
+  String get quizInterestExplanation =>
+      'Her dönem kazanılan faiz bakiyeye eklenir ve sonraki dönemde bu tutar da faiz getirir.';
 
   @override
   String get quizCorrect => 'Doğru!';

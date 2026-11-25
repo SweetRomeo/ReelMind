@@ -9,11 +9,15 @@ enum _VideoError { load, playback, volume }
 class ReelVideoPlayer extends StatefulWidget {
   final VideoSource source;
   final bool isActive;
+  final int replayRequest;
+  final ValueChanged<bool>? onCompletionChanged;
 
   const ReelVideoPlayer({
     super.key,
     required this.source,
     required this.isActive,
+    this.replayRequest = 0,
+    this.onCompletionChanged,
   });
 
   @override
@@ -25,6 +29,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
   bool _ready = false;
   bool _muted = true;
+  bool _completed = false;
   _VideoError? _error;
 
   @override
@@ -39,14 +44,24 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       ),
     };
 
+    _controller.addListener(_onVideoChanged);
     _initializeVideo();
+  }
+
+  void _onVideoChanged() {
+    final completed = _controller.value.isCompleted;
+    if (completed == _completed) return;
+    _completed = completed;
+    widget.onCompletionChanged?.call(completed);
   }
 
   @override
   void didUpdateWidget(covariant ReelVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.isActive != widget.isActive) {
+    if (oldWidget.replayRequest != widget.replayRequest) {
+      _replay();
+    } else if (oldWidget.isActive != widget.isActive) {
       _syncPlayback();
     }
   }
@@ -57,7 +72,6 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
       if (!mounted) return;
 
-      await _controller.setLooping(true);
       await _controller.setVolume(0);
 
       if (!mounted) return;
@@ -80,8 +94,9 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     if (!_ready || !mounted) return;
 
     try {
-      if (widget.isActive) {
+      if (widget.isActive && !_completed) {
         await _controller.setVolume(_muted ? 0 : 1);
+        if (!mounted || !widget.isActive || _completed) return;
         await _controller.play();
       } else {
         await _controller.pause();
@@ -98,6 +113,16 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     } catch (e, stackTrace) {
       debugPrint('VIDEO AUTOPLAY ERROR: $e');
       debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
+  Future<void> _replay() async {
+    if (!_ready || !widget.isActive) return;
+    try {
+      await _controller.seekTo(Duration.zero);
+      if (mounted && widget.isActive) await _controller.play();
+    } catch (_) {
+      if (mounted) setState(() => _error = _VideoError.playback);
     }
   }
 
@@ -134,6 +159,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
 
   @override
   void dispose() {
+    _controller.removeListener(_onVideoChanged);
     _controller.dispose();
     super.dispose();
   }

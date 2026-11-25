@@ -28,6 +28,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseVideo => 'Pause';
 
   @override
+  String get startMiniQuiz => 'Take the mini quiz';
+
+  @override
+  String get replayVideo => 'Replay video';
+
+  @override
+  String get nextLesson => 'Next lesson';
+
+  @override
   String get videoLoadFailed => 'Couldn\'t load the video.';
 
   @override
@@ -123,6 +132,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quizSkyGreen => 'Green';
 
   @override
+  String get quizSkyExplanation =>
+      'Air molecules scatter shorter wavelengths more strongly, so blue light scatters more than green or red light.';
+
+  @override
   String get quizApiQuestion => 'What is the main purpose of an API?';
 
   @override
@@ -135,6 +148,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quizApiBrightness => 'Increase screen brightness';
 
   @override
+  String get quizApiExplanation =>
+      'An API defines how one application can request data from another and read the response.';
+
+  @override
   String get quizInterestQuestion => 'What does compound interest include?';
 
   @override
@@ -145,6 +162,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizInterestPrevious => 'Interest earned on previous interest';
+
+  @override
+  String get quizInterestExplanation =>
+      'Each period’s interest is added to the balance that earns interest in the next period.';
 
   @override
   String get quizCorrect => 'Correct!';

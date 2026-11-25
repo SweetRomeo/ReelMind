@@ -14,6 +14,7 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   final calls = <String>[];
   final playingIds = <int>{};
   final volumes = <int, double>{};
+  final seeks = <(int, Duration)>[];
   final _streams = <int, StreamController<VideoEvent>>{};
   final firstDisposal = Completer<void>();
   int _nextId = 1;
@@ -57,6 +58,15 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
 
   @override
   Future<void> setLooping(int playerId, bool looping) async {}
+
+  void completeVideo(int playerId) {
+    _streams[playerId]!.add(VideoEvent(eventType: VideoEventType.completed));
+  }
+
+  @override
+  Future<void> seekTo(int playerId, Duration position) async {
+    seeks.add((playerId, position));
+  }
 
   @override
   Future<void> setVolume(int playerId, double volume) async {
@@ -204,6 +214,66 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
+
+  testWidgets(
+    'Completed videos wait for replay or quiz and advance by lesson',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(430, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const ReelMindApp());
+      await tester.pumpAndSettle();
+
+      Future<void> tapLabel(String label) async {
+        final button = find.text(label);
+        if (button.hitTestable().evaluate().isEmpty) {
+          await tester.ensureVisible(button);
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(button);
+        await tester.pumpAndSettle();
+      }
+
+      final sky = fake.playingIds.single;
+      fake.completeVideo(sky);
+      await tester.pumpAndSettle();
+      expect(fake.playingIds, isEmpty);
+      expect(find.text('Take the mini quiz'), findsOneWidget);
+      await tapLabel('Replay video');
+      expect(fake.seeks.last, (sky, Duration.zero));
+      expect(fake.playingIds, {sky});
+
+      fake.completeVideo(sky);
+      await tester.pumpAndSettle();
+      await tapLabel('Take the mini quiz');
+      await tapLabel('Back to feed');
+      expect(fake.playingIds, isEmpty);
+      await tapLabel('Take the mini quiz');
+      await tapLabel('Red');
+      expect(find.textContaining('shorter wavelengths'), findsOneWidget);
+      await tapLabel('Replay video');
+      expect(fake.seeks.last, (sky, Duration.zero));
+      expect(fake.playingIds, {sky});
+
+      await tapLabel('Retry Quiz');
+      await tapLabel('Blue');
+      expect(find.text('Replay video'), findsNothing);
+      await tapLabel('Next lesson');
+      expect(find.text('What is an API?'), findsOneWidget);
+      expect(fake.playingIds.single, isNot(sky));
+      await tapLabel('Test Your Knowledge');
+      await tapLabel('Allow applications to exchange data');
+      await tapLabel('Next lesson');
+      expect(fake.playingIds, isEmpty);
+      await tapLabel('Test Your Knowledge');
+      await tapLabel('Only new deposits');
+      expect(find.text('Replay video'), findsNothing);
+      expect(find.text('Next lesson'), findsNothing);
+      await tapLabel('Back to feed');
+      expect(find.text('Answered 3/3 · Correct 2/3'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    },
+  );
 
   testWidgets('Only the active reel video plays while swiping', (tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 900));
