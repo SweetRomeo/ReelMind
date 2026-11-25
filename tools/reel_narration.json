@@ -37,5 +37,22 @@
       "tr": "Saçılan mavi ışık, gökyüzünün farklı yönlerinden gözümüze ulaşır. Bu yüzden gökyüzünü mavi görürüz.",
       "en": "Scattered blue light reaches your eyes from many directions. That makes the sky look blue."
     }
+  ],
+  "interest": [
+    {
+      "start": 0,
+      "tr": "Bin lirayla başlayalım. Örneğimizde yıllık faiz yüzde on.",
+      "en": "Imagine a thousand lira earning ten percent interest each year."
+    },
+    {
+      "start": 6,
+      "tr": "İlk yıl yüz lira faiz kazanılır. Bu para hesapta kalır ve bakiye bin yüz liraya çıkar.",
+      "en": "In year one, you earn a hundred lira. Leave it in the account and the balance grows to eleven hundred."
+    },
+    {
+      "start": 14,
+      "tr": "İkinci yıl anaparadan yüz lira, geçen yılın faizinden de on lira kazanılır. Bakiye bin iki yüz on liraya ulaşır. İşte bileşik faiz.",
+      "en": "Year two adds a hundred lira on the deposit, plus ten on last year's interest. The total is one thousand two hundred and ten lira."
+    }
   ]
 }

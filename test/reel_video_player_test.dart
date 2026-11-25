@@ -263,10 +263,14 @@ void main() {
       await tapLabel('Test Your Knowledge');
       await tapLabel('Allow applications to exchange data');
       await tapLabel('Next lesson');
+      expect(find.text('What is compound interest?'), findsOneWidget);
+      final finance = fake.playingIds.single;
+      fake.completeVideo(finance);
+      await tester.pumpAndSettle();
       expect(fake.playingIds, isEmpty);
-      await tapLabel('Test Your Knowledge');
+      await tapLabel('Take the mini quiz');
       await tapLabel('Only new deposits');
-      expect(find.text('Replay video'), findsNothing);
+      expect(find.text('Replay video'), findsOneWidget);
       expect(find.text('Next lesson'), findsNothing);
       await tapLabel('Back to feed');
       expect(find.text('Answered 3/3 · Correct 2/3'), findsOneWidget);
@@ -328,17 +332,25 @@ void main() {
     expect(fake.playingIds, hasLength(1));
     expect(fake.playingIds, isNot(contains(skyPlayer)));
 
-    // Üçüncü karta geçince oynatma durur.
+    final apiPlayer = fake.playingIds.single;
     await tester.drag(find.byType(PageView), const Offset(0, -700));
     await tester.pumpAndSettle();
 
-    expect(fake.playingIds, isEmpty);
+    expect(find.text('What is compound interest?'), findsOneWidget);
+    final financePlayer = fake.playingIds.single;
+    expect(financePlayer, isNot(apiPlayer));
+    expect(fake.volumes[financePlayer], 0);
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pumpAndSettle();
+    expect(fake.volumes[financePlayer], 1);
+    expect(fake.playingIds, {financePlayer});
 
     // API kartına dönünce yeniden oynar.
     await tester.drag(find.byType(PageView), const Offset(0, 700));
     await tester.pumpAndSettle();
 
     expect(fake.playingIds, hasLength(1));
+    expect(fake.playingIds, isNot(contains(financePlayer)));
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
