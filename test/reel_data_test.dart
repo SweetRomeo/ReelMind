@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reelmind/data/reel_data.dart';
 import 'package:reelmind/l10n/app_localizations.dart';
 import 'package:reelmind/models/video_source.dart';
 
 void main() {
-  test('Builds three reels with local science and API videos', () async {
-    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    final reels = buildReels(l10n);
-
-    expect(reels, hasLength(3));
-    expect(reels[0].videoSource?.type, VideoSourceType.asset);
-    expect(reels[2].videoSource, isNull);
-
-    expect(reels[1].videoSource?.type, VideoSourceType.asset);
-    expect(
-      reels[1].videoSource?.location,
-      'assets/videos/api_intro_en_001.mp4',
-    );
+  test('All three lessons have bundled videos in each language', () async {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final assets = manifest.listAssets().toSet();
+    for (final locale in AppLocalizations.supportedLocales) {
+      final reels = buildReels(await AppLocalizations.delegate.load(locale));
+      expect(reels, hasLength(3));
+      for (final reel in reels) {
+        expect(reel.videoSource?.type, VideoSourceType.asset);
+        expect(assets, contains(reel.videoSource!.location));
+      }
+    }
   });
 
   test(
@@ -53,6 +53,16 @@ void main() {
       expect(
         turkishReels[1].videoSource?.location,
         'assets/videos/api_intro_tr_001.mp4',
+      );
+      expect(englishReels[2].title, en.interestTitle);
+      expect(turkishReels[2].title, tr.interestTitle);
+      expect(
+        englishReels[2].videoSource?.location,
+        'assets/videos/compound_interest_en_001.mp4',
+      );
+      expect(
+        turkishReels[2].videoSource?.location,
+        'assets/videos/compound_interest_tr_001.mp4',
       );
     },
   );

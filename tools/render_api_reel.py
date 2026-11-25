@@ -1,8 +1,9 @@
-"""Render the narrated API and sky lessons. See docs/api_pilot.md."""
+"""Render ReelMind's narrated lessons. See docs/api_pilot.md."""
 from pathlib import Path
 from functools import lru_cache
 import argparse, json, math, os, shutil, subprocess, tempfile, wave
 from PIL import Image, ImageDraw, ImageFont
+from interest_reel import render_interest
 from sky_reel import render_sky
 
 W,H,FPS,DURATION=1080,1920,24,25
@@ -32,7 +33,7 @@ parser.add_argument('--font-dir',type=Path,help='Directory containing DejaVuSans
 parser.add_argument('--output',type=Path)
 parser.add_argument('--preview-only',action='store_true')
 parser.add_argument('--voice-dir',type=Path,default=Path('build/reel-voice'))
-parser.add_argument('--lesson',choices=['api','sky','both'],default='api')
+parser.add_argument('--lesson',choices=['api','sky','interest','both','all'],default='api')
 args=parser.parse_args()
 @lru_cache(None)
 def font(size,bold=False):
@@ -140,18 +141,21 @@ if __name__ == '__main__':
     scenes = json.loads(Path(__file__).with_name('reel_narration.json').read_text(encoding='utf-8'))
     output = args.output or Path('build/reel-previews' if args.preview_only else 'assets/videos')
     output.mkdir(parents=True, exist_ok=True)
-    for lesson in (scenes if args.lesson == 'both' else [args.lesson]):
+    selection = {'all': scenes.keys(), 'both': ('api', 'sky')}.get(args.lesson, (args.lesson,))
+    for lesson in selection:
         starts = [scene['start'] for scene in scenes[lesson]]
-        prefix = {'api': 'api_intro', 'sky': 'sky_color'}[lesson]
+        prefix = {'api': 'api_intro', 'sky': 'sky_color', 'interest': 'compound_interest'}[lesson]
         for lang in ('tr', 'en'):
             def frame_at(t):
                 if lesson == 'sky':
                     return render_sky(t, lang, font, starts)
+                if lesson == 'interest':
+                    return render_interest(t, lang, font, starts)
                 return render(t, lang, starts)
 
             if args.preview_only:
-                for start in starts:
-                    frame_at(start + 2).resize((360, 640)).save(output / f'{lesson}_{lang}_{start}.png')
+                for start, end in zip(starts, [*starts[1:], DURATION]):
+                    frame_at((start + end) / 2).resize((360, 640)).save(output / f'{lesson}_{lang}_{start}.png')
                 continue
             ffmpeg = ffmpeg_path()
             target = output / f'{prefix}_{lang}_001.mp4'

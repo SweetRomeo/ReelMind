@@ -36,6 +36,9 @@ List<LearningReel> buildReels(AppLocalizations l10n) {
       description: l10n.interestDescription,
       icon: Icons.trending_up,
       color: const Color(0xFF00796B),
+      videoSource: VideoSource.asset(
+        'assets/videos/compound_interest_${language}_001.mp4',
+      ),
     ),
   ];
 }

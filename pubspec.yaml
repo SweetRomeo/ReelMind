@@ -70,6 +70,8 @@ flutter:
     - assets/videos/sky_color_en_001.mp4
     - assets/videos/api_intro_tr_001.mp4
     - assets/videos/api_intro_en_001.mp4
+    - assets/videos/compound_interest_tr_001.mp4
+    - assets/videos/compound_interest_en_001.mp4
 
   # To add assets to your application, add an assets section, like this:
   # assets:
