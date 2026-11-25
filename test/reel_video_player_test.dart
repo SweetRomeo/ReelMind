@@ -263,10 +263,14 @@ void main() {
       await tapLabel('Test Your Knowledge');
       await tapLabel('Allow applications to exchange data');
       await tapLabel('Next lesson');
+      expect(find.text('What is compound interest?'), findsOneWidget);
+      final finance = fake.playingIds.single;
+      fake.completeVideo(finance);
+      await tester.pumpAndSettle();
       expect(fake.playingIds, isEmpty);
-      await tapLabel('Test Your Knowledge');
+      await tapLabel('Take the mini quiz');
       await tapLabel('Only new deposits');
-      expect(find.text('Replay video'), findsNothing);
+      expect(find.text('Replay video'), findsOneWidget);
       expect(find.text('Next lesson'), findsNothing);
       await tapLabel('Back to feed');
       expect(find.text('Answered 3/3 · Correct 2/3'), findsOneWidget);
