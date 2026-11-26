@@ -1,6 +1,6 @@
 # Narrated lessons
 
-The science, API and compound-interest reels each have a Turkish and an English MP4 in `assets/videos`. Each file contains a 25-second portrait animation (1080 × 1920, 24 fps, H.264) and a mono AAC narration track. The app selects the file that matches its language. The player starts muted. Use the speaker button to listen.
+The science, API and compound-interest reels each have a Turkish and an English MP4 in `assets/videos`. Each file contains a 25-second portrait animation (1080 × 1920, 24 fps, H.264) and a mono AAC narration track. The app selects the file that matches its language. Each session starts muted. Use the speaker button to change sound for the current lesson and the rest of the session.
 
 | Lesson | Scenes |
 | --- | --- |
