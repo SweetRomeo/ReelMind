@@ -143,6 +143,7 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
   final _pageController = PageController();
   int _activeIndex = 0;
   bool _isOverlayOpen = false;
+  bool _muted = true;
 
   @override
   void dispose() {
@@ -256,6 +257,8 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 progressSummary: progressSummary,
                 quizResult: _results[reel.id],
                 isActive: index == _activeIndex && !_isOverlayOpen,
+                muted: _muted,
+                onMuteChanged: (muted) => setState(() => _muted = muted),
                 onOverviewPressed: () => _openLessonOverview(reels),
                 onQuizPressed: () => _openQuiz(reels, index),
                 selectedLocale: widget.selectedLocale,
@@ -276,6 +279,8 @@ class LearningReelCard extends StatefulWidget {
   final String progressSummary;
   final bool? quizResult;
   final bool isActive;
+  final bool? muted;
+  final ValueChanged<bool>? onMuteChanged;
   final Locale? selectedLocale;
   final ValueChanged<Locale?>? onLocaleChanged;
   final VoidCallback onOverviewPressed;
@@ -289,6 +294,8 @@ class LearningReelCard extends StatefulWidget {
     required this.progressSummary,
     required this.quizResult,
     required this.isActive,
+    this.muted,
+    this.onMuteChanged,
     this.selectedLocale,
     required this.onLocaleChanged,
     required this.onOverviewPressed,
@@ -330,6 +337,8 @@ class _LearningReelCardState extends State<LearningReelCard> {
             key: ValueKey(reel.videoSource),
             source: reel.videoSource!,
             isActive: widget.isActive,
+            muted: widget.muted,
+            onMuteChanged: widget.onMuteChanged,
             replayRequest: _replayRequest,
             onCompletionChanged: (completed) {
               setState(() => _videoCompleted = completed);

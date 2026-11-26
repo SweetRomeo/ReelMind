@@ -9,6 +9,8 @@ enum _VideoError { load, playback, volume }
 class ReelVideoPlayer extends StatefulWidget {
   final VideoSource source;
   final bool isActive;
+  final bool? muted;
+  final ValueChanged<bool>? onMuteChanged;
   final int replayRequest;
   final ValueChanged<bool>? onCompletionChanged;
 
@@ -16,9 +18,11 @@ class ReelVideoPlayer extends StatefulWidget {
     super.key,
     required this.source,
     required this.isActive,
+    this.muted,
+    this.onMuteChanged,
     this.replayRequest = 0,
     this.onCompletionChanged,
-  });
+  }) : assert((muted == null) == (onMuteChanged == null));
 
   @override
   State<ReelVideoPlayer> createState() => _ReelVideoPlayerState();
@@ -28,7 +32,8 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
   late final VideoPlayerController _controller;
 
   bool _ready = false;
-  bool _muted = true;
+  bool _localMuted = true;
+  bool get _muted => widget.muted ?? _localMuted;
   bool _completed = false;
   _VideoError? _error;
 
@@ -63,6 +68,8 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
       _replay();
     } else if (oldWidget.isActive != widget.isActive) {
       _syncPlayback();
+    } else if (_ready && widget.isActive && oldWidget.muted != widget.muted) {
+      _applyVolume();
     }
   }
 
@@ -94,9 +101,11 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     if (!_ready || !mounted) return;
 
     try {
-      if (widget.isActive && !_completed) {
-        await _controller.setVolume(_muted ? 0 : 1);
-        if (!mounted || !widget.isActive || _completed) return;
+      if (widget.isActive) {
+        await _applyVolume();
+        if (!mounted || !widget.isActive || _completed || _error != null) {
+          return;
+        }
         await _controller.play();
       } else {
         await _controller.pause();
@@ -120,7 +129,11 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     if (!_ready || !widget.isActive) return;
     try {
       await _controller.seekTo(Duration.zero);
-      if (mounted && widget.isActive) await _controller.play();
+      if (!mounted || !widget.isActive) return;
+      await _applyVolume();
+      if (mounted && widget.isActive && _error == null) {
+        await _controller.play();
+      }
     } catch (_) {
       if (mounted) setState(() => _error = _VideoError.playback);
     }
@@ -142,14 +155,21 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     }
   }
 
-  Future<void> _toggleMute() async {
-    final nextMuted = !_muted;
+  void _toggleMute() {
+    if (!widget.isActive) return;
+    if (widget.onMuteChanged case final onChanged?) {
+      onChanged(!_muted);
+    } else {
+      setState(() => _localMuted = !_localMuted);
+      _applyVolume();
+    }
+  }
 
+  Future<void> _applyVolume() async {
+    final volume = _muted ? 0.0 : 1.0;
+    if (_controller.value.volume == volume) return;
     try {
-      await _controller.setVolume(nextMuted ? 0 : 1);
-      if (mounted) {
-        setState(() => _muted = nextMuted);
-      }
+      await _controller.setVolume(volume);
     } catch (_) {
       if (mounted) {
         setState(() => _error = _VideoError.volume);

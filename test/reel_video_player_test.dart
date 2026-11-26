@@ -16,7 +16,6 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   final volumes = <int, double>{};
   final seeks = <(int, Duration)>[];
   final _streams = <int, StreamController<VideoEvent>>{};
-  final firstDisposal = Completer<void>();
   int _nextId = 1;
 
   @override
@@ -25,7 +24,8 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
   @override
   Future<int?> createWithOptions(VideoCreationOptions options) async {
     final id = _nextId++;
-    final stream = StreamController<VideoEvent>();
+    // Keep asynchronous cancellation on the widget test's clock.
+    final stream = StreamController<VideoEvent>(onCancel: () async {});
     _streams[id] = stream;
 
     stream.add(
@@ -102,10 +102,6 @@ class FakeVideoPlatform extends VideoPlayerPlatform {
     playingIds.remove(playerId);
 
     await _streams.remove(playerId)?.close();
-
-    if (!firstDisposal.isCompleted) {
-      firstDisposal.complete();
-    }
   }
 }
 
@@ -148,6 +144,11 @@ void main() {
     await showPlayer(tester, true);
 
     expect(fake.calls, contains('play'));
+    final player = fake.playingIds.single;
+    expect(fake.volumes[player], 0);
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pump();
+    expect(fake.volumes[player], 1);
 
     await showPlayer(tester, false);
 
@@ -193,6 +194,9 @@ void main() {
 
     expect(find.text('What is an API?'), findsOneWidget);
     expect(fake.playingIds, hasLength(1));
+    final apiPlayer = fake.playingIds.single;
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Test Your Knowledge'));
     await tester.pumpAndSettle();
@@ -209,7 +213,8 @@ void main() {
     await tester.tap(backButton);
     await tester.pumpAndSettle();
 
-    expect(fake.playingIds, hasLength(1));
+    expect(fake.playingIds, {apiPlayer});
+    expect(fake.volumes[apiPlayer], 1);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
@@ -234,6 +239,8 @@ void main() {
       }
 
       final sky = fake.playingIds.single;
+      await tester.tap(find.byTooltip('Unmute'));
+      await tester.pumpAndSettle();
       fake.completeVideo(sky);
       await tester.pumpAndSettle();
       expect(fake.playingIds, isEmpty);
@@ -241,6 +248,7 @@ void main() {
       await tapLabel('Replay video');
       expect(fake.seeks.last, (sky, Duration.zero));
       expect(fake.playingIds, {sky});
+      expect(fake.volumes[sky], 1);
 
       fake.completeVideo(sky);
       await tester.pumpAndSettle();
@@ -260,11 +268,13 @@ void main() {
       await tapLabel('Next lesson');
       expect(find.text('What is an API?'), findsOneWidget);
       expect(fake.playingIds.single, isNot(sky));
+      expect(fake.volumes[fake.playingIds.single], 1);
       await tapLabel('Test Your Knowledge');
       await tapLabel('Allow applications to exchange data');
       await tapLabel('Next lesson');
       expect(find.text('What is compound interest?'), findsOneWidget);
       final finance = fake.playingIds.single;
+      expect(fake.volumes[finance], 1);
       fake.completeVideo(finance);
       await tester.pumpAndSettle();
       expect(fake.playingIds, isEmpty);
@@ -333,16 +343,17 @@ void main() {
     expect(fake.playingIds, isNot(contains(skyPlayer)));
 
     final apiPlayer = fake.playingIds.single;
+    expect(fake.volumes[apiPlayer], 1);
     await tester.drag(find.byType(PageView), const Offset(0, -700));
     await tester.pumpAndSettle();
 
     expect(find.text('What is compound interest?'), findsOneWidget);
     final financePlayer = fake.playingIds.single;
     expect(financePlayer, isNot(apiPlayer));
-    expect(fake.volumes[financePlayer], 0);
-    await tester.tap(find.byTooltip('Unmute'));
-    await tester.pumpAndSettle();
     expect(fake.volumes[financePlayer], 1);
+    await tester.tap(find.byTooltip('Mute'));
+    await tester.pumpAndSettle();
+    expect(fake.volumes[financePlayer], 0);
     expect(fake.playingIds, {financePlayer});
 
     // API kartına dönünce yeniden oynar.
@@ -351,7 +362,38 @@ void main() {
 
     expect(fake.playingIds, hasLength(1));
     expect(fake.playingIds, isNot(contains(financePlayer)));
+    expect(fake.volumes[fake.playingIds.single], 0);
 
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Language changes keep narration on until the feed restarts', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+    final englishPlayer = fake.playingIds.single;
+    await tester.tap(find.byTooltip('Unmute'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('language-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(CheckedPopupMenuItem<String>, 'Türkçe'),
+    );
+    await tester.pumpAndSettle();
+
+    final turkishPlayer = fake.playingIds.single;
+    expect(turkishPlayer, isNot(englishPlayer));
+    expect(fake.volumes[turkishPlayer], 1);
+    expect(find.byTooltip('Sesi kapat'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const ReelMindApp());
+    await tester.pumpAndSettle();
+    expect(fake.volumes[fake.playingIds.single], 0);
+    expect(find.byTooltip('Sesi aç'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
@@ -375,11 +417,8 @@ void main() {
     }
 
     expect(fake.playingIds, hasLength(1));
-
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.runAsync(
-      () => fake.firstDisposal.future.timeout(const Duration(seconds: 3)),
-    );
+    await tester.pumpAndSettle();
 
     expect(fake.calls, contains('dispose'));
     expect(fake.playingIds, isEmpty);
