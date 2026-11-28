@@ -17,8 +17,8 @@
     },
     {
       "start": 19,
-      "tr": "Bu veri alışverişinin kurallarını tanımlayan arayüze ey pi ay denir.",
-      "en": "An A P I defines the rules that let these programs exchange data."
+      "tr": "Bu veri alışverişinin kurallarını tanımlayan arayüze API denir.",
+      "en": "An API defines the rules that let these programs exchange data."
     }
   ],
   "sky": [

@@ -35,6 +35,7 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
   bool _localMuted = true;
   bool get _muted => widget.muted ?? _localMuted;
   bool _completed = false;
+  bool _resumeOnActivation = true;
   _VideoError? _error;
 
   @override
@@ -67,6 +68,9 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     if (oldWidget.replayRequest != widget.replayRequest) {
       _replay();
     } else if (oldWidget.isActive != widget.isActive) {
+      if (!widget.isActive && _ready) {
+        _resumeOnActivation = _controller.value.isPlaying;
+      }
       _syncPlayback();
     } else if (_ready && widget.isActive && oldWidget.muted != widget.muted) {
       _applyVolume();
@@ -103,7 +107,11 @@ class _ReelVideoPlayerState extends State<ReelVideoPlayer> {
     try {
       if (widget.isActive) {
         await _applyVolume();
-        if (!mounted || !widget.isActive || _completed || _error != null) {
+        if (!mounted ||
+            !widget.isActive ||
+            _completed ||
+            !_resumeOnActivation ||
+            _error != null) {
           return;
         }
         await _controller.play();

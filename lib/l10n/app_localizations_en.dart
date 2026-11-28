@@ -28,6 +28,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseVideo => 'Pause';
 
   @override
+  String get transcript => 'Transcript';
+
+  @override
+  String get transcriptLoadFailed => 'Couldn\'t load the transcript.';
+
+  @override
   String get startMiniQuiz => 'Take the mini quiz';
 
   @override
