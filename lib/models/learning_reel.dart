@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'video_source.dart';
 
 enum LessonId {
-  skyColor('sky-color'),
-  apiIntro('api-intro'),
-  compoundInterest('compound-interest');
+  skyColor('sky-color', 'sky'),
+  apiIntro('api-intro', 'api'),
+  compoundInterest('compound-interest', 'interest');
 
-  const LessonId(this.storageId);
+  const LessonId(this.storageId, this.narrationKey);
 
   final String storageId;
+  final String narrationKey;
 }
 
 class LearningReel {

@@ -7,6 +7,8 @@
   "muteVideo": "Mute",
   "playVideo": "Play",
   "pauseVideo": "Pause",
+  "transcript": "Transcript",
+  "transcriptLoadFailed": "Couldn't load the transcript.",
   "startMiniQuiz": "Take the mini quiz",
   "replayVideo": "Replay video",
   "nextLesson": "Next lesson",

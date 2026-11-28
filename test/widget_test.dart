@@ -301,7 +301,16 @@ void main() {
 
     expect(find.text('Why is the sky blue?'), findsOneWidget);
 
-    // Detect Flutter layout exceptions.
+    await tester.tap(find.byTooltip('Lessons'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('What is compound interest?'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Transcript'));
+    await tester.pumpAndSettle();
+    final finalScene = find.textContaining('plus ten on last year');
+    await tester.ensureVisible(finalScene);
+    await tester.pumpAndSettle();
+    expect(finalScene.hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

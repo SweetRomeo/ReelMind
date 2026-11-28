@@ -176,6 +176,53 @@ void main() {
     await tester.pump();
   });
 
+  testWidgets(
+    'Reading the transcript preserves playback and follows the lesson language',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(const ReelMindApp());
+      await tester.pumpAndSettle();
+      final player = fake.playingIds.single;
+      await tester.tap(find.byTooltip('Unmute'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Transcript'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Sunlight looks white'), findsOneWidget);
+      expect(find.text('0:17'), findsOneWidget);
+      expect(fake.playingIds, isEmpty);
+      await tester.tap(find.byType(CloseButton));
+      await tester.pumpAndSettle();
+      expect(fake.playingIds, {player});
+      expect(fake.volumes[player], 1);
+      expect(fake.seeks, isEmpty);
+
+      await tester.drag(find.byType(PageView), const Offset(0, -700));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('language-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(CheckedPopupMenuItem<String>, 'Türkçe'),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Duraklat'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Anlatım metni'));
+      await tester.pumpAndSettle();
+      expect(find.text('0:19'), findsOneWidget);
+      expect(find.textContaining('arayüze API denir'), findsOneWidget);
+      expect(find.textContaining('Sunlight looks white'), findsNothing);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsNothing);
+      expect(fake.playingIds, isEmpty);
+      expect(find.byTooltip('Oynat'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    },
+  );
+
   testWidgets('Quiz pauses video and returning resumes playback', (
     tester,
   ) async {

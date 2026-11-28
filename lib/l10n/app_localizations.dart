@@ -134,6 +134,18 @@ abstract class AppLocalizations {
   /// **'Pause'**
   String get pauseVideo;
 
+  /// No description provided for @transcript.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript'**
+  String get transcript;
+
+  /// No description provided for @transcriptLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the transcript.'**
+  String get transcriptLoadFailed;
+
   /// No description provided for @startMiniQuiz.
   ///
   /// In en, this message translates to:

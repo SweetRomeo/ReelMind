@@ -24,6 +24,7 @@ function Get-ReelVoice([string]$language) {
 
 foreach ($language in 'tr', 'en') {
     $culture = @{ tr = 'tr-TR'; en = 'en-US' }[$language]
+    $apiPronunciation = @{ tr = 'ey pi ay'; en = 'A P I' }[$language]
     $speaker.Voice = Get-ReelVoice $culture
     Write-Output $speaker.Voice.GetDescription()
     foreach ($lesson in $lessons.PSObject.Properties) {
@@ -33,7 +34,8 @@ foreach ($language in 'tr', 'en') {
             $stream.Open($file, 3)
             try {
                 $speaker.AudioOutputStream = $stream
-                [void]$speaker.Speak($lesson.Value[$index].$language)
+                $spokenLine = $lesson.Value[$index].$language -creplace '\bAPI\b', $apiPronunciation
+                [void]$speaker.Speak($spokenLine)
             } finally {
                 $stream.Close()
             }

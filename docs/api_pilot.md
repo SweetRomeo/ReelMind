@@ -2,6 +2,8 @@
 
 The science, API and compound-interest reels each have a Turkish and an English MP4 in `assets/videos`. Each file contains a 25-second portrait animation (1080 × 1920, 24 fps, H.264) and a mono AAC narration track. The app selects the file that matches its language. Each session starts muted. Use the speaker button to change sound for the current lesson and the rest of the session.
 
+Open **Transcript** in the feed header to read the narration in the selected language. Each paragraph starts with its scene time. Opening the transcript pauses the video and closing it resumes a video that was playing.
+
 | Lesson | Scenes |
 | --- | --- |
 | Why is the sky blue? | 0–8 s shows the colors in sunlight through a prism. 8–17 s compares scattering of blue and red light by air molecules. 17–25 s follows scattered blue light to the viewer's eye. |
@@ -20,6 +22,6 @@ python -m pip install Pillow imageio-ffmpeg
 python tools/render_api_reel.py --lesson all
 ```
 
-Speech synthesis writes one WAV per scene under `build/reel-voice`. The renderer aligns each clip with its scene, checks that it fits, and normalizes the assembled narration before encoding. Use `--voice-dir PATH` for recorded narration with the same filenames, such as `sky_tr_0.wav` for the first Turkish sky scene. Only the final MP4 files are bundled in the app.
+Speech synthesis writes one WAV per scene under `build/reel-voice`. The renderer aligns each clip with its scene, checks that it fits, and normalizes the assembled narration before encoding. Use `--voice-dir PATH` for recorded narration with the same filenames, such as `sky_tr_0.wav` for the first Turkish sky scene. The app bundles the MP4 files and reads the transcript from the same narration JSON used for speech synthesis.
 
 Use `--lesson sky`, `--lesson api`, or `--lesson interest` to render a single lesson. The existing `--lesson both` option renders the sky and API pair. Add `--preview-only` to write phone-size storyboard frames under `build/reel-previews`. The default typeface is Arial on Windows and DejaVu Sans on Linux. Use `--font-dir PATH` to select a directory containing `DejaVuSans.ttf` and `DejaVuSans-Bold.ttf`.

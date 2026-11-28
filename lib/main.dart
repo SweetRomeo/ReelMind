@@ -8,6 +8,7 @@ import 'data/reel_data.dart';
 import 'l10n/app_localizations.dart';
 import 'models/learning_reel.dart';
 import 'screens/lesson_overview.dart';
+import 'screens/lesson_transcript.dart';
 import 'screens/quiz_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/reel_video_player.dart';
@@ -151,26 +152,29 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
     super.dispose();
   }
 
-  Future<void> _openLessonOverview(List<LearningReel> reels) async {
-    if (_isOverlayOpen) return;
+  Future<T?> _showFeedSheet<T>(WidgetBuilder builder) async {
+    if (_isOverlayOpen) return null;
     setState(() => _isOverlayOpen = true);
 
     try {
-      final index = await showModalBottomSheet<int>(
-        context: context,
-        builder: (context) => LessonOverview(
-          reels: reels,
-          results: _results,
-          activeIndex: _activeIndex,
-        ),
-      );
-      if (mounted && index != null && index != _activeIndex) {
-        _pageController.jumpToPage(index);
-      }
+      return await showModalBottomSheet<T>(context: context, builder: builder);
     } finally {
       if (mounted) {
         setState(() => _isOverlayOpen = false);
       }
+    }
+  }
+
+  Future<void> _openLessonOverview(List<LearningReel> reels) async {
+    final index = await _showFeedSheet<int>(
+      (context) => LessonOverview(
+        reels: reels,
+        results: _results,
+        activeIndex: _activeIndex,
+      ),
+    );
+    if (mounted && index != null && index != _activeIndex) {
+      _pageController.jumpToPage(index);
     }
   }
 
@@ -260,6 +264,9 @@ class _VideoFeedScreenState extends State<VideoFeedScreen> {
                 muted: _muted,
                 onMuteChanged: (muted) => setState(() => _muted = muted),
                 onOverviewPressed: () => _openLessonOverview(reels),
+                onTranscriptPressed: () => _showFeedSheet<void>(
+                  (context) => LessonTranscript(lessonId: reel.id),
+                ),
                 onQuizPressed: () => _openQuiz(reels, index),
                 selectedLocale: widget.selectedLocale,
                 onLocaleChanged: widget.onLocaleChanged,
@@ -284,6 +291,7 @@ class LearningReelCard extends StatefulWidget {
   final Locale? selectedLocale;
   final ValueChanged<Locale?>? onLocaleChanged;
   final VoidCallback onOverviewPressed;
+  final VoidCallback? onTranscriptPressed;
   final Future<QuizAction?> Function() onQuizPressed;
 
   const LearningReelCard({
@@ -299,6 +307,7 @@ class LearningReelCard extends StatefulWidget {
     this.selectedLocale,
     required this.onLocaleChanged,
     required this.onOverviewPressed,
+    this.onTranscriptPressed,
     required this.onQuizPressed,
   });
 
@@ -401,6 +410,12 @@ class _LearningReelCardState extends State<LearningReelCard> {
                     ),
                     const SizedBox(width: 8),
                     Text('${widget.index + 1}/${widget.total}'),
+                    if (widget.onTranscriptPressed != null)
+                      IconButton(
+                        tooltip: l10n.transcript,
+                        onPressed: widget.onTranscriptPressed,
+                        icon: const Icon(Icons.article_outlined),
+                      ),
                     IconButton(
                       tooltip: l10n.lessonOverview,
                       onPressed: widget.onOverviewPressed,

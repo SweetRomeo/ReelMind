@@ -28,6 +28,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pauseVideo => 'Duraklat';
 
   @override
+  String get transcript => 'Anlatım metni';
+
+  @override
+  String get transcriptLoadFailed => 'Anlatım metni yüklenemedi.';
+
+  @override
   String get startMiniQuiz => 'Mini teste geç';
 
   @override
